@@ -1,0 +1,11 @@
+<div class="sw-ring sw-ring-{{ size }}" role="img"
+     aria-label="{% if percentage is not None %}{{ percentage }}% of budget used{% else %}No budget set{% endif %}">
+  <svg viewBox="0 0 36 36" aria-hidden="true">
+    <circle class="sw-ring-track" cx="18" cy="18" r="15.9155"></circle>
+    {% if value %}
+      <circle class="sw-ring-value" cx="18" cy="18" r="15.9155" pathLength="100"
+              style="stroke: var(--bs-{{ level.css_class }}); stroke-dasharray: {{ value }} 100;"></circle>
+    {% endif %}
+  </svg>
+  <span class="sw-ring-label tabular">{% if percentage is not None %}{{ percentage }}%{% else %}&ndash;{% endif %}</span>
+</div>

@@ -11,6 +11,7 @@ from enum import Enum
 
 from django.db import transaction
 from django.db.models import Q, Sum
+from django.db.models.functions import TruncMonth
 
 from .dates import add_months, first_day_of_month, month_bounds
 from .models import Budget, Category, Expense
@@ -173,6 +174,13 @@ class MonthlySummary:
         return usage_percentage(self.budgeted_spent, self.total_budget)
 
     @property
+    def overall_progress(self) -> int:
+        """Overall usage for a progress bar, capped at 100."""
+        if self.overall_percentage is None:
+            return 0
+        return int(min(self.overall_percentage, DANGER_THRESHOLD))
+
+    @property
     def overall_alert_level(self) -> AlertLevel:
         return get_alert_level(self.budgeted_spent, self.total_budget or None)
 
@@ -225,6 +233,54 @@ def get_monthly_summary(user, month: date) -> MonthlySummary:
         for category, spent in spending
     )
     return MonthlySummary(month=start, rows=rows)
+
+
+@dataclass(frozen=True)
+class MonthTotal:
+    """Total spent and total budgeted for one month."""
+
+    month: date
+    spent: Decimal
+    budget: Decimal
+
+    @property
+    def is_over_budget(self) -> bool:
+        return bool(self.budget) and self.spent > self.budget
+
+
+def get_spending_trend(user, month: date, months: int = 6) -> list[MonthTotal]:
+    """Spending and budget totals for the ``months`` months ending with ``month``.
+
+    Months without data are included with zero totals. Two queries in total.
+    """
+    last = first_day_of_month(month)
+    first = add_months(last, -(months - 1))
+    end = add_months(last, 1)
+    spent = dict(
+        Expense.objects.for_user(user)
+        .filter(date__gte=first, date__lt=end)
+        .annotate(month=TruncMonth("date"))
+        .order_by()
+        .values("month")
+        .annotate(total=Sum("amount"))
+        .values_list("month", "total")
+    )
+    budgeted = dict(
+        Budget.objects.for_user(user)
+        .filter(month_year__gte=first, month_year__lt=end)
+        .order_by()
+        .values("month_year")
+        .annotate(total=Sum("monthly_limit"))
+        .values_list("month_year", "total")
+    )
+    return [
+        MonthTotal(
+            month=current,
+            spent=to_money(spent.get(current)),
+            budget=to_money(budgeted.get(current)),
+        )
+        for current in (add_months(first, offset) for offset in range(months))
+    ]
 
 
 def get_category_spending(category: Category, month: date) -> CategorySpending:

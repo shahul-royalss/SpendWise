@@ -1,0 +1,26 @@
+{% load tracker_extras %}
+{% if has_data %}
+  <div class="sw-trend" style="--sw-cols: {{ bars|length }};" role="img"
+       aria-label="Spending over the last {{ bars|length }} months">
+    {% for bar in bars %}
+      <div class="sw-trend-col">
+        <div class="sw-trend-plot">
+          {% if bar.budget_height is not None %}
+            <span class="sw-trend-budget" style="bottom: {{ bar.budget_height }}%;"></span>
+          {% endif %}
+          <div class="sw-trend-bar{% if bar.is_selected %} is-current{% endif %}{% if bar.point.is_over_budget %} is-over{% endif %}"
+               style="height: {{ bar.height }}%; --i: {{ forloop.counter0 }};"
+               data-label="{{ bar.point.spent|currency }}"></div>
+        </div>
+        <span class="sw-trend-label{% if bar.is_selected %} fw-bold text-body-emphasis{% endif %}">{{ bar.point.month|date:"M" }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <ul class="visually-hidden">
+    {% for bar in bars %}
+      <li>{{ bar.point.month|date:"F Y" }}: {{ bar.point.spent|currency }} spent{% if bar.point.budget %} of {{ bar.point.budget|currency }} budgeted{% endif %}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  {% include "partials/empty_state.html" with icon="bar-chart-line" text="Your monthly spending history will appear here." %}
+{% endif %}

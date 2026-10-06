@@ -1,14 +1,12 @@
-<nav class="d-flex align-items-center gap-2" aria-label="Choose month">
-  <div class="btn-group" role="group">
-    <a class="btn btn-outline-secondary" href="{{ base_url }}?month={{ previous_month|date:'Y-m' }}" aria-label="Previous month">
-      <i class="bi bi-chevron-left" aria-hidden="true"></i>
-    </a>
-    <span class="btn btn-outline-secondary pe-none fw-semibold month-label">{{ month|date:"F Y" }}</span>
-    <a class="btn btn-outline-secondary" href="{{ base_url }}?month={{ next_month|date:'Y-m' }}" aria-label="Next month">
-      <i class="bi bi-chevron-right" aria-hidden="true"></i>
-    </a>
-  </div>
+<nav class="sw-month-nav" aria-label="Choose month">
+  <a class="btn btn-sm" href="{{ base_url }}?month={{ previous_month|date:'Y-m' }}" aria-label="Previous month">
+    <i class="bi bi-chevron-left" aria-hidden="true"></i>
+  </a>
+  <span class="sw-month-label">{{ month|date:"F Y" }}</span>
+  <a class="btn btn-sm" href="{{ base_url }}?month={{ next_month|date:'Y-m' }}" aria-label="Next month">
+    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+  </a>
   {% if not is_current_month %}
-    <a class="btn btn-link" href="{{ base_url }}">This month</a>
+    <a class="btn btn-sm fw-semibold" href="{{ base_url }}">Today</a>
   {% endif %}
 </nav>

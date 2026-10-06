@@ -1,0 +1,30 @@
+{% load tracker_extras %}
+{% if segments %}
+  <div class="sw-donut" role="img" aria-label="Spending split by category">
+    <svg viewBox="0 0 42 42" aria-hidden="true">
+      <circle class="sw-donut-track" cx="21" cy="21" r="15.9155"></circle>
+      {% for segment in segments %}
+        <circle class="sw-donut-segment" cx="21" cy="21" r="15.9155" pathLength="100"
+                style="--i: {{ forloop.counter0 }}; stroke: {{ segment.color }}; stroke-dasharray: {{ segment.length }} {{ segment.gap }}; stroke-dashoffset: {{ segment.offset }};">
+          <title>{{ segment.row.category.name }}: {{ segment.row.spent|currency }} ({{ segment.row.share }}%)</title>
+        </circle>
+      {% endfor %}
+    </svg>
+    <div class="sw-donut-center">
+      <span class="small text-body-secondary">Spent</span>
+      <strong class="fs-5 tabular" data-countup="{{ total }}" data-prefix="{{ symbol }}">{{ total|currency }}</strong>
+    </div>
+  </div>
+  <ul class="list-unstyled mt-4 mb-0">
+    {% for segment in segments %}
+      <li class="d-flex align-items-center gap-2 py-1">
+        <span class="sw-legend-dot" style="--sw-cat: {{ segment.color }};"></span>
+        <span class="flex-grow-1 text-truncate">{{ segment.row.category.name }}</span>
+        <span class="small text-body-secondary tabular">{{ segment.row.share }}%</span>
+        <span class="fw-semibold tabular text-end" style="min-width: 6.5rem;">{{ segment.row.spent|currency }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  {% include "partials/empty_state.html" with icon="pie-chart" text="No spending recorded for this month yet." %}
+{% endif %}
