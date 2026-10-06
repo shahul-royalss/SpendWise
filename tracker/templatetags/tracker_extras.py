@@ -8,19 +8,20 @@ from tracker.services import DANGER_THRESHOLD
 
 register = template.Library()
 
-# Identity colours for categories (avatars, legends, chart segments). They are
-# deliberately not the green / amber / red used for budget states.
+# Identity colours for categories (avatars, legends, chart segments): muted,
+# earthy tones that sit well next to the pine brand colour and stay distinct
+# from the green / ochre / brick used for budget states.
 CATEGORY_PALETTE = (
-    "#6366f1",
-    "#06b6d4",
-    "#8b5cf6",
-    "#ec4899",
-    "#14b8a6",
-    "#0ea5e9",
-    "#d946ef",
-    "#84cc16",
-    "#f97316",
-    "#64748b",
+    "#2f6a8e",
+    "#b5672e",
+    "#6b7f2a",
+    "#7a4f6e",
+    "#2e8a86",
+    "#a44a5a",
+    "#4f5d6e",
+    "#8a6d3b",
+    "#3e7b5e",
+    "#5c5a9a",
 )
 SEGMENT_GAP = Decimal("0.8")
 

@@ -12,7 +12,7 @@
                style="height: {{ bar.height }}%; --i: {{ forloop.counter0 }};"
                data-label="{{ bar.point.spent|currency }}"></div>
         </div>
-        <span class="sw-trend-label{% if bar.is_selected %} fw-bold text-body-emphasis{% endif %}">{{ bar.point.month|date:"M" }}</span>
+        <span class="sw-trend-label{% if bar.is_selected %} fw-semibold text-body-emphasis{% endif %}">{{ bar.point.month|date:"M" }}</span>
       </div>
     {% endfor %}
   </div>

@@ -23,7 +23,7 @@
             <div class="d-flex align-items-start gap-3 mb-3">
               <span class="sw-cat-avatar sw-cat-avatar-lg" aria-hidden="true">{{ category.name|first|upper }}</span>
               <div class="flex-grow-1 sw-min-w-0">
-                <h2 class="h5 fw-bold mb-1 text-truncate">
+                <h2 class="h5 fw-semibold mb-1 text-truncate">
                   <a class="text-decoration-none text-body-emphasis" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
                 </h2>
                 <p class="small text-body-secondary mb-0 sw-clamp-2">{{ category.description|default:"No description" }}</p>

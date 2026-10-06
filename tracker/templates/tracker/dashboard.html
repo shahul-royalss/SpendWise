@@ -28,7 +28,7 @@
     <div class="col-lg-5 d-flex flex-column align-items-start align-items-lg-end gap-3">
       {% url "tracker:dashboard" as base_url %}
       {% include "tracker/partials/month_nav.html" %}
-      <a class="btn btn-light sw-hero-cta" href="{% url 'tracker:expense_create' %}">
+      <a class="btn sw-btn-accent" href="{% url 'tracker:expense_create' %}">
         <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add expense
       </a>
     </div>
@@ -41,7 +41,7 @@
   <div class="d-grid gap-2">
     {% for row in summary.alerts %}
       <div class="alert alert-{{ row.alert_level.css_class }} sw-alert mb-0" role="alert" style="--i: {{ forloop.counter0 }};">
-        <span class="sw-icon-bubble sw-icon-bubble-sm sw-grad-{{ row.alert_level.css_class }}">
+        <span class="sw-icon-bubble sw-icon-bubble-sm sw-tone-{{ row.alert_level.css_class }}">
           <i class="bi bi-{{ row.alert_level.icon }}" aria-hidden="true"></i>
         </span>
         <div class="flex-grow-1">
@@ -61,7 +61,7 @@
       <div class="card-body">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h2 class="sw-stat-label mb-0">Spent this month</h2>
-          <span class="sw-icon-bubble sw-grad-indigo"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+          <span class="sw-icon-bubble sw-tone-primary"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
         </div>
         <p class="sw-stat-value mb-1" data-countup="{{ summary.total_spent }}" data-prefix="{{ symbol }}">{{ summary.total_spent|currency }}</p>
         <p class="small text-body-secondary mb-0">{{ expense_count }} expense{{ expense_count|pluralize }}</p>
@@ -73,7 +73,7 @@
       <div class="card-body">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h2 class="sw-stat-label mb-0">Monthly budget</h2>
-          <span class="sw-icon-bubble sw-grad-cyan"><i class="bi bi-piggy-bank" aria-hidden="true"></i></span>
+          <span class="sw-icon-bubble sw-tone-info"><i class="bi bi-piggy-bank" aria-hidden="true"></i></span>
         </div>
         <p class="sw-stat-value mb-1" data-countup="{{ summary.total_budget }}" data-prefix="{{ symbol }}">{{ summary.total_budget|currency }}</p>
         <p class="small text-body-secondary mb-0">
@@ -108,7 +108,7 @@
       <div class="card-body">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h2 class="sw-stat-label mb-0">Budget alerts</h2>
-          <span class="sw-icon-bubble {% if summary.danger_count %}sw-grad-danger{% elif summary.warning_count %}sw-grad-warning{% else %}sw-grad-success{% endif %}">
+          <span class="sw-icon-bubble {% if summary.danger_count %}sw-tone-danger{% elif summary.warning_count %}sw-tone-warning{% else %}sw-tone-success{% endif %}">
             <i class="bi bi-bell" aria-hidden="true"></i>
           </span>
         </div>
@@ -127,7 +127,7 @@
     <section class="card h-100 sw-fade-up" style="--i: 5;" aria-labelledby="breakdown-heading">
       <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
-          <h2 id="breakdown-heading" class="h5 fw-bold mb-0">Category breakdown</h2>
+          <h2 id="breakdown-heading" class="h5 fw-semibold mb-0">Category breakdown</h2>
           <p class="small text-body-secondary mb-0">Budget, spending and status for every category</p>
         </div>
         <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:budget_list' %}?month={{ month|date:'Y-m' }}">Manage budgets</a>
@@ -201,7 +201,7 @@
   <div class="col-xl-4">
     <section class="card h-100 sw-fade-up" style="--i: 6;" aria-labelledby="donut-heading">
       <div class="card-header">
-        <h2 id="donut-heading" class="h5 fw-bold mb-0">Where your money went</h2>
+        <h2 id="donut-heading" class="h5 fw-semibold mb-0">Where your money went</h2>
         <p class="small text-body-secondary mb-0">Share of {{ month|date:"F" }} spending</p>
       </div>
       <div class="card-body">{% spending_donut summary %}</div>
@@ -214,7 +214,7 @@
     <section class="card h-100 sw-fade-up" style="--i: 7;" aria-labelledby="trend-heading">
       <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
         <div>
-          <h2 id="trend-heading" class="h5 fw-bold mb-0">Last 6 months</h2>
+          <h2 id="trend-heading" class="h5 fw-semibold mb-0">Last 6 months</h2>
           <p class="small text-body-secondary mb-0">Monthly spending against the total budget</p>
         </div>
         <div class="sw-legend small">
@@ -228,7 +228,7 @@
   <div class="col-xl-4">
     <section class="card h-100 sw-fade-up" style="--i: 8;" aria-labelledby="recent-heading">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h2 id="recent-heading" class="h5 fw-bold mb-0">Recent expenses</h2>
+        <h2 id="recent-heading" class="h5 fw-semibold mb-0">Recent expenses</h2>
         <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:expense_list' %}?month={{ month|date:'Y-m' }}">View all</a>
       </div>
       {% if recent_expenses %}
@@ -240,7 +240,7 @@
                 <div class="fw-semibold text-truncate">{{ expense.notes|default:expense.category.name }}</div>
                 <div class="small text-body-secondary text-truncate">{{ expense.category.name }} &middot; {{ expense.date|naturalday:"d M"|capfirst }}</div>
               </div>
-              <span class="fw-bold tabular text-nowrap">{{ expense.amount|currency }}</span>
+              <span class="fw-semibold tabular text-nowrap">{{ expense.amount|currency }}</span>
             </li>
           {% endfor %}
         </ul>

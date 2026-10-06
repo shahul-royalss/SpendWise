@@ -26,7 +26,7 @@
   <div class="col-lg-5">
     <section class="card h-100 sw-fade-up" style="--i: 1;" aria-labelledby="month-heading">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h2 id="month-heading" class="h5 fw-bold mb-0">{{ month|date:"F Y" }}</h2>
+        <h2 id="month-heading" class="h5 fw-semibold mb-0">{{ month|date:"F Y" }}</h2>
         {% alert_badge status.alert_level %}
       </div>
       <div class="card-body d-flex flex-wrap align-items-center gap-4">
@@ -49,7 +49,7 @@
   <div class="col-lg-7">
     <section class="card h-100 sw-fade-up" style="--i: 2;" aria-labelledby="history-heading">
       <div class="card-header">
-        <h2 id="history-heading" class="h5 fw-bold mb-0">Budget history</h2>
+        <h2 id="history-heading" class="h5 fw-semibold mb-0">Budget history</h2>
       </div>
       {% if budgets %}
         <div class="table-responsive">
@@ -83,7 +83,7 @@
 
 <section class="card sw-fade-up" style="--i: 3;" aria-labelledby="expenses-heading">
   <div class="card-header d-flex justify-content-between align-items-center">
-    <h2 id="expenses-heading" class="h5 fw-bold mb-0">Latest expenses</h2>
+    <h2 id="expenses-heading" class="h5 fw-semibold mb-0">Latest expenses</h2>
     {% if expense_count %}
       <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:expense_list' %}?category={{ category.pk }}">All {{ expense_count }} expense{{ expense_count|pluralize }}</a>
     {% endif %}
@@ -96,7 +96,7 @@
             <div class="fw-semibold text-truncate">{{ expense.notes|default:"No notes" }}</div>
             <div class="small text-body-secondary">{{ expense.date|naturalday:"d M Y"|capfirst }}</div>
           </div>
-          <span class="fw-bold tabular text-nowrap">{{ expense.amount|currency }}</span>
+          <span class="fw-semibold tabular text-nowrap">{{ expense.amount|currency }}</span>
         </li>
       {% endfor %}
     </ul>

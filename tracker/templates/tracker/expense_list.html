@@ -85,7 +85,7 @@
                 <a class="sw-cat-pill" style="--sw-cat: {{ expense.category|category_color }};" href="{{ expense.category.get_absolute_url }}">{{ expense.category.name }}</a>
               </td>
               <td class="text-nowrap text-body-secondary">{{ expense.date|naturalday:"d M Y"|capfirst }}</td>
-              <td class="text-end fw-bold tabular text-nowrap">{{ expense.amount|currency }}</td>
+              <td class="text-end fw-semibold tabular text-nowrap">{{ expense.amount|currency }}</td>
               <td class="text-end text-nowrap">
                 <a class="btn btn-sm btn-outline-secondary btn-icon" href="{% url 'tracker:expense_update' expense.pk %}"
                    aria-label="Edit expense of {{ expense.amount|currency }} on {{ expense.date|date:'d M Y' }}">

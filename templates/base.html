@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="SpendWise: log expenses, set monthly budgets per category and get warned before you overspend.">
   <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#1f5c4a">
   <title>{% block title %}Personal expense tracker{% endblock %} | SpendWise</title>
   <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
-  <link rel="preload" href="{% static 'vendor/inter/InterVariable.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'vendor/ibm-plex-sans/IBMPlexSans-Regular.woff2' %}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{% static 'vendor/ibm-plex-sans/IBMPlexSans-SemiBold.woff2' %}" as="font" type="font/woff2" crossorigin>
   <script src="{% static 'js/theme.js' %}"></script>
   <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
@@ -33,7 +35,7 @@
   <footer class="sw-footer py-4 mt-auto">
     <div class="container-xl d-flex flex-wrap justify-content-between align-items-center gap-2 small text-body-secondary">
       <span class="d-inline-flex align-items-center gap-2">
-        <span class="sw-logo" style="width: 1.6rem; height: 1.6rem; font-size: .8rem;"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+        <span class="sw-logo sw-logo-sm"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
         SpendWise
       </span>
       <span>Know where your money goes, before the month ends.</span>
