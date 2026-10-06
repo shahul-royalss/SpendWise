@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth import views as auth_views
-from django.shortcuts import redirect
+from django.shortcuts import redirect, resolve_url
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 
@@ -35,7 +36,20 @@ class LoginView(auth_views.LoginView):
 
 
 class LogoutView(auth_views.LogoutView):
-    """Django's logout view (POST only) with a confirmation message."""
+    """Log out on POST only.
+
+    A GET (for example a typed or bookmarked /accounts/logout/ URL) shows a
+    confirmation page instead of logging out, so a link on another site can't
+    sign the user out.
+    """
+
+    http_method_names = ["get", "post", "options"]
+    template_name = "accounts/logout_confirm.html"
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(resolve_url(settings.LOGIN_URL))
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)

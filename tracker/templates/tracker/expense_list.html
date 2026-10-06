@@ -1,74 +1,97 @@
 {% extends "base.html" %}
-{% load tracker_extras %}
+{% load humanize tracker_extras %}
 
 {% block title %}Expenses{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-  <h1 class="h3 mb-0">Expenses</h1>
-  <a class="btn btn-primary" href="{% url 'tracker:expense_create' %}">
-    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add expense
-  </a>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4 sw-fade-up">
+  <div>
+    <p class="sw-eyebrow mb-1">Spending log</p>
+    <h1 class="h2 sw-title mb-0">Expenses</h1>
+  </div>
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <span class="sw-total-pill"><i class="bi bi-calculator text-primary" aria-hidden="true"></i>Total: {{ filtered_total|currency }}</span>
+    <a class="btn btn-primary" href="{% url 'tracker:expense_create' %}">
+      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add expense
+    </a>
+  </div>
 </div>
 
-<form method="get" class="card card-body shadow-sm mb-3" role="search" aria-label="Filter expenses">
-  <div class="row g-2 align-items-end">
-    <div class="col-sm-6 col-lg-3">
-      <label class="form-label small mb-1" for="{{ filter_form.month.id_for_label }}">Month</label>
-      {{ filter_form.month }}
+<form method="get" class="card mb-4 sw-fade-up" style="--i: 1;" role="search" aria-label="Filter expenses" data-autosubmit>
+  <div class="card-body">
+    <div class="row g-2 g-md-3 align-items-center">
+      <div class="col-sm-6 col-lg-3">
+        <div class="form-floating">
+          {{ filter_form.month }}
+          <label for="{{ filter_form.month.id_for_label }}">Month</label>
+        </div>
+      </div>
+      <div class="col-sm-6 col-lg-3">
+        <div class="form-floating">
+          {{ filter_form.category }}
+          <label for="{{ filter_form.category.id_for_label }}">Category</label>
+        </div>
+      </div>
+      <div class="col-sm-8 col-lg-4">
+        <div class="form-floating">
+          {{ filter_form.q }}
+          <label for="{{ filter_form.q.id_for_label }}">Search notes</label>
+        </div>
+      </div>
+      <div class="col-sm-4 col-lg-2 d-flex gap-2">
+        <button type="submit" class="btn btn-outline-primary flex-fill py-3">
+          <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filter
+        </button>
+        {% if filter_form.is_active %}
+          <a class="btn btn-outline-secondary py-3" href="{% url 'tracker:expense_list' %}" aria-label="Clear filters">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+          </a>
+        {% endif %}
+      </div>
     </div>
-    <div class="col-sm-6 col-lg-3">
-      <label class="form-label small mb-1" for="{{ filter_form.category.id_for_label }}">Category</label>
-      {{ filter_form.category }}
-    </div>
-    <div class="col-sm-8 col-lg-4">
-      <label class="form-label small mb-1" for="{{ filter_form.q.id_for_label }}">Search notes</label>
-      {{ filter_form.q }}
-    </div>
-    <div class="col-sm-4 col-lg-2 d-flex gap-2">
-      <button type="submit" class="btn btn-outline-primary flex-fill">
-        <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filter
-      </button>
-      {% if filter_form.is_active %}
-        <a class="btn btn-link px-1" href="{% url 'tracker:expense_list' %}">Clear</a>
-      {% endif %}
-    </div>
+    {% if filter_form.errors %}
+      <div class="text-danger-emphasis small mt-2"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>Some filters were invalid and have been ignored.</div>
+    {% endif %}
   </div>
-  {% if filter_form.errors %}
-    <div class="text-danger small mt-2">Some filters were invalid and have been ignored.</div>
-  {% endif %}
 </form>
 
-<div class="card shadow-sm">
-  <div class="card-header bg-body d-flex flex-wrap justify-content-between gap-2">
-    <span>{{ paginator.count }} expense{{ paginator.count|pluralize }}</span>
-    <span class="fw-semibold">Total: {{ filtered_total|currency }}</span>
+<div class="card sw-fade-up" style="--i: 2;">
+  <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <span class="fw-semibold">{{ paginator.count }} expense{{ paginator.count|pluralize }}</span>
+    {% if filter_form.is_active %}<span class="badge rounded-pill bg-primary-subtle text-primary-emphasis border border-primary-subtle">Filtered</span>{% endif %}
   </div>
   {% if expenses %}
     <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
+      <table class="table table-hover align-middle">
+        <thead>
           <tr>
-            <th scope="col">Date</th>
+            <th scope="col">Expense</th>
             <th scope="col">Category</th>
-            <th scope="col">Notes</th>
+            <th scope="col">Date</th>
             <th scope="col" class="text-end">Amount</th>
-            <th scope="col" class="text-end">Actions</th>
+            <th scope="col" class="text-end"><span class="visually-hidden">Actions</span></th>
           </tr>
         </thead>
         <tbody>
           {% for expense in expenses %}
-            <tr>
-              <td class="text-nowrap">{{ expense.date|date:"d M Y" }}</td>
-              <td><a class="text-decoration-none" href="{{ expense.category.get_absolute_url }}">{{ expense.category.name }}</a></td>
-              <td class="text-body-secondary">{{ expense.notes|truncatechars:60|default:"-" }}</td>
-              <td class="text-end fw-semibold text-nowrap">{{ expense.amount|currency }}</td>
+            <tr class="sw-row" style="--i: {{ forloop.counter0 }};">
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="sw-cat-avatar sw-cat-avatar-sm" style="--sw-cat: {{ expense.category|category_color }};" aria-hidden="true">{{ expense.category.name|first|upper }}</span>
+                  <span class="d-inline-block text-truncate" style="max-width: 18rem;">{{ expense.notes|default:"No notes" }}</span>
+                </div>
+              </td>
+              <td>
+                <a class="sw-cat-pill" style="--sw-cat: {{ expense.category|category_color }};" href="{{ expense.category.get_absolute_url }}">{{ expense.category.name }}</a>
+              </td>
+              <td class="text-nowrap text-body-secondary">{{ expense.date|naturalday:"d M Y"|capfirst }}</td>
+              <td class="text-end fw-bold tabular text-nowrap">{{ expense.amount|currency }}</td>
               <td class="text-end text-nowrap">
-                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tracker:expense_update' expense.pk %}"
+                <a class="btn btn-sm btn-outline-secondary btn-icon" href="{% url 'tracker:expense_update' expense.pk %}"
                    aria-label="Edit expense of {{ expense.amount|currency }} on {{ expense.date|date:'d M Y' }}">
                   <i class="bi bi-pencil" aria-hidden="true"></i>
                 </a>
-                <a class="btn btn-sm btn-outline-danger" href="{% url 'tracker:expense_delete' expense.pk %}"
+                <a class="btn btn-sm btn-outline-danger btn-icon" href="{% url 'tracker:expense_delete' expense.pk %}"
                    aria-label="Delete expense of {{ expense.amount|currency }} on {{ expense.date|date:'d M Y' }}">
                   <i class="bi bi-trash" aria-hidden="true"></i>
                 </a>
@@ -78,16 +101,11 @@
         </tbody>
       </table>
     </div>
+  {% elif filter_form.is_active %}
+    {% include "partials/empty_state.html" with icon="search" text="No expenses match these filters." %}
   {% else %}
-    <div class="empty-state">
-      <i class="bi bi-receipt" aria-hidden="true"></i>
-      {% if filter_form.is_active %}
-        <p class="mt-2 mb-0">No expenses match these filters.</p>
-      {% else %}
-        <p class="mt-2 mb-3">You haven't logged any expenses yet.</p>
-        <a class="btn btn-primary" href="{% url 'tracker:expense_create' %}">Log your first expense</a>
-      {% endif %}
-    </div>
+    {% url "tracker:expense_create" as add_url %}
+    {% include "partials/empty_state.html" with icon="receipt" text="You haven't logged any expenses yet." url=add_url action="Log your first expense" %}
   {% endif %}
 </div>
 

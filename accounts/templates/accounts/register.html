@@ -1,27 +1,31 @@
 {% extends "base.html" %}
 
 {% block title %}Register{% endblock %}
+{% block fab %}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
-    <div class="card shadow-sm">
-      <div class="card-body p-4">
-        <div class="text-center mb-4">
-          <i class="bi bi-wallet2 display-6 text-primary" aria-hidden="true"></i>
-          <h1 class="h4 mt-2 mb-1">Create your account</h1>
-          <p class="text-body-secondary small mb-0">Your expenses and budgets are private to you.</p>
-        </div>
+<div class="sw-auth">
+  <div class="sw-auth-card row g-0">
+    <div class="col-lg-6 sw-auth-hero d-none d-lg-flex flex-column justify-content-between">
+      {% include "accounts/partials/auth_hero.html" %}
+    </div>
+    <div class="col-lg-6 p-4 p-sm-5 d-flex align-items-center">
+      <div class="w-100 sw-fade-up" style="--i: 2;">
+        <span class="sw-logo mb-4" style="width: 3rem; height: 3rem; font-size: 1.4rem;"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+        <h1 class="h3 sw-title mb-1">Create your account</h1>
+        <p class="text-body-secondary mb-4">It takes a minute. Your expenses and budgets are private to you.</p>
         <form method="post">
           {% csrf_token %}
           {% include "partials/form_errors.html" %}
           {% for field in form %}
             {% include "partials/form_field.html" %}
           {% endfor %}
-          <button type="submit" class="btn btn-primary w-100">Register</button>
+          <button type="submit" class="btn btn-primary btn-lg w-100 mt-1">
+            Create account <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+          </button>
         </form>
-        <p class="text-center small mt-3 mb-0">
-          Already registered? <a href="{% url 'accounts:login' %}">Log in</a>
+        <p class="text-center small text-body-secondary mt-4 mb-0">
+          Already registered? <a class="fw-semibold" href="{% url 'accounts:login' %}">Log in</a>
         </p>
       </div>
     </div>

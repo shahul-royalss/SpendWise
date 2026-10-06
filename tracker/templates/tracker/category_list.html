@@ -1,47 +1,68 @@
 {% extends "base.html" %}
+{% load tracker_extras %}
 
 {% block title %}Categories{% endblock %}
 
 {% block content %}
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-  <h1 class="h3 mb-0">Categories</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4 sw-fade-up">
+  <div>
+    <p class="sw-eyebrow mb-1">Organise your spending</p>
+    <h1 class="h2 sw-title mb-0">Categories</h1>
+  </div>
   <a class="btn btn-primary" href="{% url 'tracker:category_create' %}">
     <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add category
   </a>
 </div>
 
-{% if categories %}
-  <div class="row g-3">
-    {% for category in categories %}
-      <div class="col-md-6 col-xl-4">
-        <div class="card shadow-sm h-100">
+{% if cards %}
+  <div class="row g-3 g-xl-4">
+    {% for category, status in cards %}
+      <div class="col-sm-6 col-xl-4">
+        <article class="card sw-cat-card card-lift h-100 sw-fade-up" style="--i: {{ forloop.counter0 }}; --sw-cat: {{ category|category_color }};">
           <div class="card-body">
-            <h2 class="h5 card-title">
-              <a class="text-decoration-none" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
-            </h2>
-            <p class="card-text small text-body-secondary">{{ category.description|default:"No description" }}</p>
-            <p class="small mb-0">
+            <div class="d-flex align-items-start gap-3 mb-3">
+              <span class="sw-cat-avatar sw-cat-avatar-lg" aria-hidden="true">{{ category.name|first|upper }}</span>
+              <div class="flex-grow-1 sw-min-w-0">
+                <h2 class="h5 fw-bold mb-1 text-truncate">
+                  <a class="text-decoration-none text-body-emphasis" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+                </h2>
+                <p class="small text-body-secondary mb-0 sw-clamp-2">{{ category.description|default:"No description" }}</p>
+              </div>
+              {% if status %}{% alert_badge status.alert_level %}{% endif %}
+            </div>
+            {% if status.has_budget %}
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="text-body-secondary">{{ month|date:"F" }}</span>
+                <span class="fw-semibold tabular">{{ status.spent|currency }} <span class="text-body-secondary fw-normal">of {{ status.limit|currency }}</span></span>
+              </div>
+              {% include "tracker/partials/budget_progress.html" with row=status %}
+            {% elif status %}
+              <p class="small text-body-secondary mb-0">{{ status.spent|currency }} spent in {{ month|date:"F" }}, no budget set.</p>
+            {% endif %}
+          </div>
+          <div class="card-footer d-flex align-items-center gap-2">
+            <span class="small text-body-secondary me-auto">
               <i class="bi bi-receipt me-1" aria-hidden="true"></i>{{ category.expense_count }} expense{{ category.expense_count|pluralize }}
-              <span class="mx-1 text-body-secondary">&middot;</span>
+              <span class="mx-1">&middot;</span>
               <i class="bi bi-piggy-bank me-1" aria-hidden="true"></i>{{ category.budget_count }} budget{{ category.budget_count|pluralize }}
-            </p>
+            </span>
+            <a class="btn btn-sm btn-outline-secondary btn-icon" href="{% url 'tracker:category_update' category.pk %}" aria-label="Edit {{ category.name }}"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+            <a class="btn btn-sm btn-outline-danger btn-icon" href="{% url 'tracker:category_delete' category.pk %}" aria-label="Delete {{ category.name }}"><i class="bi bi-trash" aria-hidden="true"></i></a>
           </div>
-          <div class="card-footer bg-body d-flex gap-2">
-            <a class="btn btn-sm btn-outline-primary" href="{{ category.get_absolute_url }}">View</a>
-            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tracker:category_update' category.pk %}">Edit</a>
-            <a class="btn btn-sm btn-outline-danger ms-auto" href="{% url 'tracker:category_delete' category.pk %}">Delete</a>
-          </div>
-        </div>
+        </article>
       </div>
     {% endfor %}
+    <div class="col-sm-6 col-xl-4">
+      <a class="sw-new-card sw-fade-up" style="--i: {{ cards|length }};" href="{% url 'tracker:category_create' %}">
+        <i class="bi bi-plus-circle-dotted" aria-hidden="true"></i>
+        <span>New category</span>
+      </a>
+    </div>
   </div>
 {% else %}
-  <div class="card shadow-sm">
-    <div class="empty-state">
-      <i class="bi bi-tags" aria-hidden="true"></i>
-      <p class="mt-2 mb-3">No categories yet. Categories group your expenses, like Food, Transport or Rent.</p>
-      <a class="btn btn-primary" href="{% url 'tracker:category_create' %}">Create your first category</a>
-    </div>
+  <div class="card sw-fade-up" style="--i: 1;">
+    {% url "tracker:category_create" as create_url %}
+    {% include "partials/empty_state.html" with icon="tags" text="No categories yet. Categories group your expenses, like Food, Transport or Rent." url=create_url action="Create your first category" %}
   </div>
 {% endif %}
 {% endblock %}

@@ -4,30 +4,37 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-8 col-lg-6">
-    <div class="card shadow-sm border-danger-subtle">
-      <div class="card-body p-4">
-        <h1 class="h4 mb-3">Delete "{{ object.name }}"?</h1>
+  <div class="col-md-9 col-lg-7 col-xl-6">
+    <div class="card sw-fade-up">
+      <div class="card-body p-4 p-lg-5">
+        <div class="text-center">
+          <div class="sw-danger-icon mx-auto mb-3"><i class="bi bi-trash3" aria-hidden="true"></i></div>
+          <h1 class="h4 fw-bold mb-3">Delete "{{ object.name }}"?</h1>
+        </div>
 
         {% if form.expense_count %}
-          <div class="alert alert-warning" role="alert">
-            <i class="bi bi-exclamation-triangle-fill me-1" aria-hidden="true"></i>
-            This category has {{ form.expense_count }} expense{{ form.expense_count|pluralize }}.
-            Expenses are never deleted together with their category, so choose where they should go.
+          <div class="alert alert-warning d-flex gap-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill mt-1" aria-hidden="true"></i>
+            <div>
+              This category has {{ form.expense_count }} expense{{ form.expense_count|pluralize }}.
+              Expenses are never deleted together with their category, so choose where they should go.
+            </div>
           </div>
           {% if not form.fields.move_expenses_to.queryset.exists %}
-            <div class="alert alert-info" role="alert">
-              You have no other category to move them to.
-              <a class="alert-link" href="{% url 'tracker:category_create' %}">Create one</a> first,
-              or delete the expenses.
+            <div class="alert alert-info d-flex gap-2" role="alert">
+              <i class="bi bi-info-circle-fill mt-1" aria-hidden="true"></i>
+              <div>
+                You have no other category to move them to.
+                <a class="alert-link" href="{% url 'tracker:category_create' %}">Create one</a> first, or delete the expenses.
+              </div>
             </div>
           {% endif %}
         {% else %}
-          <p>This category has no expenses.</p>
+          <p class="text-center text-body-secondary">This category has no expenses.</p>
         {% endif %}
 
         {% if budget_count %}
-          <p class="text-body-secondary">Its {{ budget_count }} budget{{ budget_count|pluralize }} will be deleted as well.</p>
+          <p class="text-center text-body-secondary">Its {{ budget_count }} budget{{ budget_count|pluralize }} will be deleted as well.</p>
         {% endif %}
 
         <form method="post">
@@ -36,11 +43,11 @@
           {% if form.expense_count %}
             {% include "partials/form_field.html" with field=form.move_expenses_to %}
           {% endif %}
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-danger">
+          <div class="d-flex gap-2 justify-content-center">
+            <button type="submit" class="btn btn-danger btn-lg">
               <i class="bi bi-trash me-1" aria-hidden="true"></i>Delete category
             </button>
-            <a class="btn btn-outline-secondary" href="{{ object.get_absolute_url }}">Cancel</a>
+            <a class="btn btn-outline-secondary btn-lg" href="{{ object.get_absolute_url }}">Cancel</a>
           </div>
         </form>
       </div>

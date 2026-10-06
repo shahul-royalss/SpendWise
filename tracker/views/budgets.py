@@ -27,9 +27,14 @@ class BudgetListView(LoginRequiredMixin, MonthNavigationMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         user = self.request.user
         summary = get_monthly_summary(user, self.month)
-        previous_budgets = Budget.objects.for_user(user).for_month(add_months(self.month, -1))
+        already_budgeted = [row.category.pk for row in summary.budgeted_rows]
         context["summary"] = summary
-        context["can_copy"] = bool(summary.unbudgeted_rows) and previous_budgets.exists()
+        context["can_copy"] = (
+            Budget.objects.for_user(user)
+            .for_month(add_months(self.month, -1))
+            .exclude(category_id__in=already_budgeted)
+            .exists()
+        )
         return context
 
 
@@ -74,9 +79,9 @@ class BudgetCopyView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         month = parse_month(request.POST.get("month")) or current_month()
         created = copy_previous_month_budgets(request.user, month)
+        source = add_months(month, -1)
         if created:
-            source = add_months(month, -1)
             messages.success(request, f"Copied {created} budget(s) from {source:%B %Y}.")
         else:
-            messages.info(request, "Every category already has a budget, so nothing was copied.")
+            messages.info(request, f"Nothing new to copy from {source:%B %Y}.")
         return redirect(budget_list_url(month))

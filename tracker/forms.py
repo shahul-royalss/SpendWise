@@ -152,7 +152,9 @@ class CategoryDeleteForm(BootstrapFormMixin, forms.Form):
     def __init__(self, *args, category, **kwargs):
         super().__init__(*args, **kwargs)
         self.category = category
-        self.expense_count = category.expenses.count()
+        self.expense_count = (
+            Expense.objects.for_user(category.user_id).filter(category=category).count()
+        )
         self.fields["move_expenses_to"].queryset = Category.objects.for_user(
             category.user_id
         ).exclude(pk=category.pk)

@@ -4,21 +4,27 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-8 col-lg-6">
-    <div class="card shadow-sm">
+  <div class="col-md-9 col-lg-7 col-xl-6">
+    <div class="card sw-fade-up">
+      <div class="sw-form-card-header">
+        <span class="sw-icon-bubble sw-grad-pink"><i class="bi bi-tags" aria-hidden="true"></i></span>
+        <div>
+          <h1 class="h4 fw-bold mb-0">{% if object %}Edit "{{ object.name }}"{% else %}New category{% endif %}</h1>
+          <p class="small text-body-secondary mb-0">Group related expenses, like Food, Transport or Rent.</p>
+        </div>
+      </div>
       <div class="card-body p-4">
-        <h1 class="h4 mb-3">{% if object %}Edit "{{ object.name }}"{% else %}New category{% endif %}</h1>
         <form method="post">
           {% csrf_token %}
           {% include "partials/form_errors.html" %}
           {% for field in form %}
             {% include "partials/form_field.html" %}
           {% endfor %}
-          <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-check-lg me-1" aria-hidden="true"></i>Save category
+          <div class="d-flex gap-2 pt-1">
+            <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+              <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Save category
             </button>
-            <a class="btn btn-outline-secondary" href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'tracker:category_list' %}{% endif %}">Cancel</a>
+            <a class="btn btn-outline-secondary btn-lg" href="{% if object %}{{ object.get_absolute_url }}{% else %}{% url 'tracker:category_list' %}{% endif %}">Cancel</a>
           </div>
         </form>
       </div>
