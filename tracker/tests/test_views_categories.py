@@ -49,7 +49,7 @@ class CategoryViewTests(TestCase):
         response = self.client.get(self.food.get_absolute_url())
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Weekly shop")
-        self.assertContains(response, "text-bg-warning")
+        self.assertContains(response, "bg-warning-subtle")
         self.assertEqual(response.context["status"].percentage, 90)
 
     def test_update_category(self):

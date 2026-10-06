@@ -33,7 +33,7 @@ class BudgetViewTests(TestCase):
         self.assertContains(response, "₹500.00")
         self.assertContains(response, "₹80.00")
         self.assertNotContains(response, "₹321.00")
-        self.assertContains(response, "text-bg-warning")
+        self.assertContains(response, "bg-warning-subtle")
         self.assertEqual(
             [row.category for row in response.context["summary"].unbudgeted_rows], [self.transport]
         )
@@ -104,7 +104,14 @@ class BudgetViewTests(TestCase):
     def test_copy_with_nothing_to_copy(self):
         response = self.client.post(reverse("tracker:budget_copy"), {"month": "2026-10"})
         messages = [str(m) for m in get_messages(response.wsgi_request)]
-        self.assertIn("Every category already has a budget, so nothing was copied.", messages)
+        self.assertIn("Nothing new to copy from September 2026.", messages)
+
+    def test_copy_button_hidden_when_nothing_new_would_be_copied(self):
+        create_budget(self.user, self.food, "500.00", SEPTEMBER)
+        create_budget(self.user, self.food, "550.00", MONTH)
+        response = self.client.get(reverse("tracker:budget_list"), {"month": "2026-10"})
+        self.assertFalse(response.context["can_copy"])
+        self.assertNotContains(response, "Copy budgets from")
 
     def test_copy_only_accepts_post(self):
         self.assertEqual(self.client.get(reverse("tracker:budget_copy")).status_code, 405)

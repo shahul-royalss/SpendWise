@@ -68,6 +68,10 @@ DEMO_DATA = {
     ),
 }
 
+# Older history for the six-month trend chart: each month's spending as a share
+# of last month's, oldest first (five, four, three and two months ago).
+HISTORY_FACTORS = (Decimal("0.70"), Decimal("0.92"), Decimal("0.64"), Decimal("1.08"))
+
 
 class Command(BaseCommand):
     help = "Create a demo user with sample categories, budgets and expenses."
@@ -93,15 +97,24 @@ class Command(BaseCommand):
         last_month = add_months(this_month, -1)
         today = timezone.localdate()
 
+        history = [
+            (add_months(this_month, -(len(HISTORY_FACTORS) + 1 - index)), factor)
+            for index, factor in enumerate(HISTORY_FACTORS)
+        ]
+
         for name, (description, limit, current, previous) in DEMO_DATA.items():
             category = Category.objects.create(user=user, name=name, description=description)
             if limit:
-                for month in (last_month, this_month):
+                for month in [month for month, _ in history] + [last_month, this_month]:
                     Budget.objects.create(
                         user=user, category=category, monthly_limit=Decimal(limit), month_year=month
                     )
             self._add_expenses(user, category, this_month, current, last_day=today.day)
             self._add_expenses(user, category, last_month, previous, last_day=28)
+            previous_total = sum(Decimal(amount) for amount, _ in previous)
+            for month, factor in history:
+                amount = (previous_total * factor).quantize(Decimal("1"))
+                self._add_expenses(user, category, month, [(amount, "Monthly spending")], 28)
 
         self.stdout.write(self.style.SUCCESS(f'Created demo user "{username}" with sample data.'))
         self.stdout.write(f"Password: {password}")

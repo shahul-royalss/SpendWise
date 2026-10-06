@@ -1,4 +1,4 @@
-"""Budget calculations: monthly spending, remaining budget, totals and copying."""
+"""Budget calculations: monthly spending, remaining budget, totals, trend and copying."""
 
 from datetime import date
 from decimal import Decimal
@@ -11,6 +11,7 @@ from tracker.services import (
     copy_previous_month_budgets,
     get_category_spending,
     get_monthly_summary,
+    get_spending_trend,
 )
 
 from .factories import MONTH, create_budget, create_category, create_expense, create_user
@@ -156,6 +157,77 @@ class MonthlySummaryTests(TestCase):
         summary = get_monthly_summary(self.user, date(2026, 10, 20))
         self.assertEqual(summary.month, MONTH)
         self.assertEqual(summary.total_spent, Decimal("12.00"))
+
+
+class OverallProgressTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = create_user("alice")
+        cls.food = create_category(cls.user, "Food")
+
+    def test_progress_is_the_rounded_down_overall_usage(self):
+        create_budget(self.user, self.food, "300.00")
+        create_expense(self.user, self.food, "200.00")
+        summary = get_monthly_summary(self.user, MONTH)
+        self.assertEqual(summary.overall_percentage, Decimal("66.6"))
+        self.assertEqual(summary.overall_progress, 66)
+
+    def test_progress_is_capped_at_100(self):
+        create_budget(self.user, self.food, "100.00")
+        create_expense(self.user, self.food, "250.00")
+        self.assertEqual(get_monthly_summary(self.user, MONTH).overall_progress, 100)
+
+    def test_progress_without_budgets_is_zero(self):
+        self.assertEqual(get_monthly_summary(self.user, MONTH).overall_progress, 0)
+
+
+class SpendingTrendTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = create_user("alice")
+        cls.food = create_category(cls.user, "Food")
+        cls.rent = create_category(cls.user, "Rent")
+
+    def test_six_months_ending_with_the_selected_month(self):
+        create_expense(self.user, self.food, "100.00", date(2026, 10, 3))
+        create_expense(self.user, self.rent, "50.50", date(2026, 10, 30))
+        create_expense(self.user, self.food, "20.00", date(2026, 8, 1))
+        create_expense(self.user, self.food, "999.00", date(2026, 4, 30))
+        create_expense(self.user, self.food, "999.00", date(2026, 11, 1))
+        create_budget(self.user, self.food, "300.00", date(2026, 10, 1))
+        create_budget(self.user, self.rent, "200.00", date(2026, 10, 1))
+        create_budget(self.user, self.food, "80.00", date(2026, 8, 1))
+
+        trend = get_spending_trend(self.user, date(2026, 10, 15))
+
+        self.assertEqual([point.month for point in trend], [date(2026, m, 1) for m in range(5, 11)])
+        by_month = {point.month: point for point in trend}
+        self.assertEqual(by_month[date(2026, 10, 1)].spent, Decimal("150.50"))
+        self.assertEqual(by_month[date(2026, 10, 1)].budget, Decimal("500.00"))
+        self.assertEqual(by_month[date(2026, 8, 1)].spent, Decimal("20.00"))
+        self.assertEqual(by_month[date(2026, 8, 1)].budget, Decimal("80.00"))
+        self.assertEqual(by_month[date(2026, 6, 1)].spent, Decimal("0.00"))
+        self.assertTrue(by_month[date(2026, 6, 1)].budget == 0)
+
+    def test_window_can_cross_a_year_boundary(self):
+        create_expense(self.user, self.food, "10.00", date(2025, 12, 31))
+        trend = get_spending_trend(self.user, date(2026, 2, 1), months=3)
+        self.assertEqual(
+            [point.month for point in trend],
+            [date(2025, 12, 1), date(2026, 1, 1), date(2026, 2, 1)],
+        )
+        self.assertEqual(trend[0].spent, Decimal("10.00"))
+
+    def test_other_users_are_ignored(self):
+        other = create_user("bob")
+        create_expense(other, create_category(other, "Food"), "500.00", date(2026, 10, 1))
+        create_budget(other, other.categories.get(), "900.00", date(2026, 10, 1))
+        trend = get_spending_trend(self.user, MONTH)
+        self.assertTrue(all(point.spent == 0 and point.budget == 0 for point in trend))
+
+    def test_uses_two_queries(self):
+        with self.assertNumQueries(2):
+            get_spending_trend(self.user, MONTH)
 
 
 class CategorySpendingTests(TestCase):

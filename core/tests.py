@@ -20,6 +20,11 @@ class BootstrapFormMixinTests(SimpleTestCase):
         self.assertEqual(form.fields["kind"].widget.attrs["class"], "form-select")
         self.assertEqual(form.fields["agree"].widget.attrs["class"], "form-check-input")
 
+    def test_text_inputs_get_a_placeholder_for_floating_labels(self):
+        form = SampleForm()
+        self.assertEqual(form.fields["name"].widget.attrs["placeholder"], "name")
+        self.assertNotIn("placeholder", form.fields["kind"].widget.attrs)
+
     def test_invalid_fields_are_flagged(self):
         form = SampleForm(data={})
         self.assertFalse(form.is_valid())
@@ -52,7 +57,12 @@ class SecurityHeadersTests(TestCase):
         for path in (
             "/static/vendor/bootstrap/css/bootstrap.min.css",
             "/static/vendor/bootstrap/js/bootstrap.bundle.min.js",
+            "/static/vendor/bootstrap-icons/bootstrap-icons.min.css",
+            "/static/vendor/inter/InterVariable.woff2",
             "/static/css/app.css",
+            "/static/js/theme.js",
+            "/static/js/app.js",
+            "/static/favicon.svg",
         ):
             with self.subTest(path=path):
                 response = self.client.get(path)

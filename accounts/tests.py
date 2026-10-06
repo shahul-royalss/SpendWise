@@ -91,9 +91,15 @@ class LoginLogoutTests(TestCase):
             fetch_redirect_response=False,
         )
 
-    def test_logout_requires_post(self):
+    def test_logout_get_only_asks_for_confirmation(self):
         self.client.force_login(self.user)
-        self.assertEqual(self.client.get(reverse("accounts:logout")).status_code, 405)
+        response = self.client.get(reverse("accounts:logout"))
+        self.assertContains(response, "Log out of SpendWise?")
+        self.assertEqual(int(self.client.session[SESSION_KEY]), self.user.pk)
+
+    def test_logout_page_sends_anonymous_users_to_login(self):
+        response = self.client.get(reverse("accounts:logout"))
+        self.assertRedirects(response, self.login_url, fetch_redirect_response=False)
 
     def test_logout_ends_the_session(self):
         self.client.force_login(self.user)

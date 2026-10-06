@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from tracker.dates import current_month
 from tracker.services import AlertLevel
+from tracker.views.dashboard import greeting_for
 
 from .factories import create_budget, create_category, create_expense, create_user
 
@@ -76,12 +77,30 @@ class DashboardViewTests(TestCase):
             },
         )
         for css_class in (
-            "text-bg-success",
-            "text-bg-warning",
-            "text-bg-danger",
-            "text-bg-secondary",
+            "bg-success-subtle",
+            "bg-warning-subtle",
+            "bg-danger-subtle",
+            "bg-secondary-subtle",
         ):
             self.assertContains(response, css_class)
+
+    def test_charts_and_greeting_are_rendered(self):
+        response = self.get()
+        trend = response.context["trend"]
+        self.assertEqual(len(trend), 6)
+        self.assertEqual(trend[-1].month, date(2026, 10, 1))
+        self.assertEqual(trend[-1].spent, Decimal("800.00"))
+        self.assertContains(response, "sw-donut-segment")
+        self.assertContains(response, "sw-trend-bar is-current")
+        self.assertIn(
+            response.context["greeting"], {"Good morning", "Good afternoon", "Good evening"}
+        )
+        self.assertContains(response, f"{response.context['greeting']}, alice")
+
+    def test_greeting_depends_on_the_hour(self):
+        self.assertEqual(greeting_for(6), "Good morning")
+        self.assertEqual(greeting_for(13), "Good afternoon")
+        self.assertEqual(greeting_for(21), "Good evening")
 
     def test_alert_banners_worst_first(self):
         response = self.get()

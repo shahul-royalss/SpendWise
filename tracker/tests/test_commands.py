@@ -3,9 +3,10 @@ from io import StringIO
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
 from django.test import TestCase
+from django.utils import timezone
 
 from tracker.dates import current_month
-from tracker.services import AlertLevel, get_monthly_summary
+from tracker.services import AlertLevel, get_monthly_summary, get_spending_trend
 
 
 class SeedDemoCommandTests(TestCase):
@@ -26,6 +27,15 @@ class SeedDemoCommandTests(TestCase):
         self.assertEqual(levels["Shopping"], AlertLevel.NORMAL)
         self.assertEqual(levels["Health"], AlertLevel.NO_BUDGET)
         self.assertIn('Created demo user "demo"', out.getvalue())
+
+    def test_creates_six_months_of_history_for_the_trend_chart(self):
+        call_command("seed_demo", "--password", "Demo-pass-2026", stdout=StringIO())
+        user = get_user_model().objects.get(username="demo")
+        trend = get_spending_trend(user, current_month())
+        self.assertEqual(len(trend), 6)
+        self.assertTrue(all(point.spent > 0 for point in trend))
+        self.assertTrue(all(point.budget > 0 for point in trend))
+        self.assertFalse(user.expenses.filter(date__gt=timezone.localdate()).exists())
 
     def test_generates_a_password_when_none_is_given(self):
         out = StringIO()
