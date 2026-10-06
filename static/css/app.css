@@ -1,0 +1,47 @@
+/* SpendWise: small additions on top of Bootstrap 5.3 */
+
+:root {
+  --sw-card-radius: 0.75rem;
+}
+
+.navbar-brand {
+  letter-spacing: 0.02em;
+}
+
+.card {
+  border-radius: var(--sw-card-radius);
+}
+
+.card-header:first-child {
+  border-radius: var(--sw-card-radius) var(--sw-card-radius) 0 0;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.budget-progress {
+  height: 0.6rem;
+  min-width: 8rem;
+}
+
+.month-label {
+  min-width: 9.5rem;
+}
+
+.empty-state {
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-state > .bi {
+  font-size: 2.5rem;
+  color: var(--bs-secondary-color);
+}
+
+.table > :not(caption) > * > * {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}

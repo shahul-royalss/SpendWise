@@ -1,0 +1,49 @@
+[project]
+name = "personal-expense-tracker"
+version = "1.0.0"
+description = "Personal expense tracker with monthly category budgets and 80% / 100% alerts, built with Django."
+readme = "README.md"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["*/migrations/*", "static/vendor"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # bugbear
+    "C4",  # comprehensions
+    "UP",  # pyupgrade
+    "SIM", # simplify
+    "DJ",  # django
+    "S",   # bandit security checks
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests use throwaway passwords on purpose.
+"**/tests/*.py" = ["S105", "S106"]
+"**/tests.py" = ["S105", "S106"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["accounts", "config", "core", "tracker"]
+
+[tool.coverage.run]
+branch = true
+source = ["accounts", "config", "core", "tracker"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/tests.py",
+    "config/asgi.py",
+    "config/wsgi.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 90
