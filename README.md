@@ -1,10 +1,12 @@
 # SpendWise: Personal Expense Tracker with Budget Alerts
 
-[![CI](https://github.com/shahul-royalss/personal-expense-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/shahul-royalss/personal-expense-tracker/actions/workflows/ci.yml)
+[![CI](https://github.com/shahul-royalss/SpendWise/actions/workflows/ci.yml/badge.svg)](https://github.com/shahul-royalss/SpendWise/actions/workflows/ci.yml)
 
 SpendWise is a Django web app for logging daily expenses, grouping them into your own categories and setting a monthly budget for each category. It keeps a running total and warns you **at 80%** of a budget and again **at 100%**, so you find out about overspending while there is still time to react.
 
 Built for the SVCET Hackathon (powered by LearnSquare) with **Django 5.2, SQLite and Django Templates + Bootstrap 5.3**.
+
+**Live demo:** https://spendwise-tracker-phi.vercel.app (register an account to try it; the demo runs on Vercel, where data resets periodically).
 
 ## Features
 
@@ -52,8 +54,8 @@ The UI is Bootstrap 5.3 with a custom design layer (`static/css/app.css`). Nothi
 Requires Python 3.10 or newer.
 
 ```bash
-git clone https://github.com/shahul-royalss/personal-expense-tracker.git
-cd personal-expense-tracker
+git clone https://github.com/shahul-royalss/SpendWise.git
+cd SpendWise
 
 python -m venv .venv
 # Windows: .venv\Scripts\activate
