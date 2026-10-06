@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+
+{% block title %}Budgets{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Budgets</h1>
+    <p class="text-body-secondary mb-0">Monthly limits for {{ month|date:"F Y" }}</p>
+  </div>
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    {% url "tracker:budget_list" as base_url %}
+    {% include "tracker/partials/month_nav.html" %}
+    <a class="btn btn-primary" href="{% url 'tracker:budget_create' %}?month={{ month|date:'Y-m' }}">
+      <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add budget
+    </a>
+  </div>
+</div>
+
+{% if can_copy %}
+  <form method="post" action="{% url 'tracker:budget_copy' %}" class="alert alert-light border d-flex flex-wrap align-items-center justify-content-between gap-2">
+    {% csrf_token %}
+    <input type="hidden" name="month" value="{{ month|date:'Y-m' }}">
+    <span><i class="bi bi-copy me-1" aria-hidden="true"></i>Reuse the limits you set for {{ previous_month|date:"F Y" }}?</span>
+    <button type="submit" class="btn btn-sm btn-outline-primary">Copy budgets from {{ previous_month|date:"F Y" }}</button>
+  </form>
+{% endif %}
+
+<section class="card shadow-sm mb-4" aria-labelledby="budgets-heading">
+  <div class="card-header bg-body d-flex flex-wrap justify-content-between gap-2">
+    <h2 id="budgets-heading" class="h5 mb-0">Budgets this month</h2>
+    <span class="small text-body-secondary">Total {{ summary.total_budget|currency }}, remaining {{ summary.remaining_budget|currency }}</span>
+  </div>
+  {% if summary.budgeted_rows %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col" class="text-end">Limit</th>
+            <th scope="col" class="text-end">Spent</th>
+            <th scope="col" class="text-end">Remaining</th>
+            <th scope="col">Usage</th>
+            <th scope="col">Status</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in summary.budgeted_rows %}
+            <tr>
+              <td><a class="fw-medium text-decoration-none" href="{{ row.category.get_absolute_url }}">{{ row.category.name }}</a></td>
+              <td class="text-end text-nowrap">{{ row.limit|currency }}</td>
+              <td class="text-end text-nowrap">{{ row.spent|currency }}</td>
+              <td class="text-end text-nowrap{% if row.overspent %} text-danger fw-semibold{% endif %}">{{ row.remaining|currency }}</td>
+              <td>{% include "tracker/partials/budget_progress.html" %}</td>
+              <td>{% alert_badge row.alert_level %}</td>
+              <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tracker:budget_update' row.budget.pk %}"
+                   aria-label="Edit {{ row.category.name }} budget"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                <a class="btn btn-sm btn-outline-danger" href="{% url 'tracker:budget_delete' row.budget.pk %}"
+                   aria-label="Delete {{ row.category.name }} budget"><i class="bi bi-trash" aria-hidden="true"></i></a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="bi bi-piggy-bank" aria-hidden="true"></i>
+      <p class="mt-2 mb-0">No budgets for {{ month|date:"F Y" }} yet.</p>
+    </div>
+  {% endif %}
+</section>
+
+{% if summary.unbudgeted_rows %}
+  <section class="card shadow-sm" aria-labelledby="unbudgeted-heading">
+    <div class="card-header bg-body">
+      <h2 id="unbudgeted-heading" class="h5 mb-0">Categories without a budget</h2>
+    </div>
+    <ul class="list-group list-group-flush">
+      {% for row in summary.unbudgeted_rows %}
+        <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <span>
+            <span class="fw-medium">{{ row.category.name }}</span>
+            <span class="small text-body-secondary ms-2">{{ row.spent|currency }} spent</span>
+          </span>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:budget_create' %}?category={{ row.category.pk }}&amp;month={{ month|date:'Y-m' }}">Set budget</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% elif not summary.rows %}
+  <div class="alert alert-info" role="alert">
+    Budgets are set per category. <a class="alert-link" href="{% url 'tracker:category_create' %}">Create a category</a> to get started.
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Dashboard</h1>
+    <p class="text-body-secondary mb-0">Spending overview for {{ month|date:"F Y" }}</p>
+  </div>
+  {% url "tracker:dashboard" as base_url %}
+  {% include "tracker/partials/month_nav.html" %}
+</div>
+
+{% if summary.alerts %}
+<section class="mb-4" aria-labelledby="alerts-heading">
+  <h2 id="alerts-heading" class="visually-hidden">Budget alerts</h2>
+  {% for row in summary.alerts %}
+    <div class="alert alert-{{ row.alert_level.css_class }} d-flex align-items-center gap-2 py-2 mb-2" role="alert">
+      <i class="bi bi-{{ row.alert_level.icon }} flex-shrink-0" aria-hidden="true"></i>
+      <div>
+        <strong>{{ row.category.name }}</strong>
+        {% if row.overspent %}
+          is over budget by {{ row.overspent|currency }} ({{ row.percentage }}% used).
+        {% elif row.alert_level == "danger" %}
+          has used its entire budget of {{ row.limit|currency }}.
+        {% else %}
+          has used {{ row.percentage }}% of its budget, {{ row.remaining|currency }} left.
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+<section class="row g-3 mb-4" aria-label="Monthly summary">
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h2 class="h6 text-body-secondary text-uppercase mb-0">Spent this month</h2>
+          <i class="bi bi-cash-stack fs-4 text-primary" aria-hidden="true"></i>
+        </div>
+        <p class="stat-value mb-1">{{ summary.total_spent|currency }}</p>
+        <p class="small text-body-secondary mb-0">{{ expense_count }} expense{{ expense_count|pluralize }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h2 class="h6 text-body-secondary text-uppercase mb-0">Monthly budget</h2>
+          <i class="bi bi-piggy-bank fs-4 text-primary" aria-hidden="true"></i>
+        </div>
+        <p class="stat-value mb-1">{{ summary.total_budget|currency }}</p>
+        <p class="small text-body-secondary mb-0">
+          {{ summary.budgeted_rows|length }} categor{{ summary.budgeted_rows|length|pluralize:"y,ies" }} with a budget
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h2 class="h6 text-body-secondary text-uppercase mb-0">Remaining budget</h2>
+          <i class="bi bi-wallet2 fs-4 text-{{ summary.overall_alert_level.css_class }}" aria-hidden="true"></i>
+        </div>
+        <p class="stat-value mb-1 text-{{ summary.overall_alert_level.css_class }}">{{ summary.remaining_budget|currency }}</p>
+        <p class="small text-body-secondary mb-0">
+          {% if summary.overall_percentage is not None %}
+            {{ summary.overall_percentage }}% of budget used
+          {% else %}
+            No budgets set for this month
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h2 class="h6 text-body-secondary text-uppercase mb-0">Budget alerts</h2>
+          <i class="bi bi-bell fs-4 text-primary" aria-hidden="true"></i>
+        </div>
+        <p class="stat-value mb-1">{{ summary.alerts|length }}</p>
+        <p class="small text-body-secondary mb-0">
+          <span class="text-danger fw-semibold">{{ summary.danger_count }}</span> at or over the limit,
+          <span class="text-warning-emphasis fw-semibold">{{ summary.warning_count }}</span> above 80%
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card shadow-sm mb-4" aria-labelledby="breakdown-heading">
+  <div class="card-header bg-body d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h2 id="breakdown-heading" class="h5 mb-0">Category breakdown</h2>
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:budget_list' %}?month={{ month|date:'Y-m' }}">Manage budgets</a>
+  </div>
+  {% if summary.rows %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col" class="text-end">Budget</th>
+            <th scope="col" class="text-end">Spent</th>
+            <th scope="col" class="text-end">Remaining</th>
+            <th scope="col">Usage</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in summary.rows %}
+            <tr>
+              <td>
+                <a class="fw-medium text-decoration-none" href="{{ row.category.get_absolute_url }}">{{ row.category.name }}</a>
+                <div class="small text-body-secondary">{{ row.share }}% of spending</div>
+              </td>
+              <td class="text-end text-nowrap">
+                {% if row.has_budget %}
+                  {{ row.limit|currency }}
+                {% else %}
+                  <a class="small" href="{% url 'tracker:budget_create' %}?category={{ row.category.pk }}&amp;month={{ month|date:'Y-m' }}">Set budget</a>
+                {% endif %}
+              </td>
+              <td class="text-end text-nowrap">{{ row.spent|currency }}</td>
+              <td class="text-end text-nowrap{% if row.overspent %} text-danger fw-semibold{% endif %}">
+                {% if row.has_budget %}{{ row.remaining|currency }}{% else %}<span class="text-body-secondary">-</span>{% endif %}
+              </td>
+              <td>{% include "tracker/partials/budget_progress.html" %}</td>
+              <td>{% alert_badge row.alert_level %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot class="table-group-divider fw-semibold">
+          <tr>
+            <th scope="row">Total</th>
+            <td class="text-end text-nowrap">{{ summary.total_budget|currency }}</td>
+            <td class="text-end text-nowrap">{{ summary.total_spent|currency }}</td>
+            <td class="text-end text-nowrap">{{ summary.remaining_budget|currency }}</td>
+            <td colspan="2">{% alert_badge summary.overall_alert_level %}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% if summary.unbudgeted_spent %}
+      <div class="card-footer bg-body small text-body-secondary">
+        Remaining only counts categories with a budget. Spending in categories without one this month:
+        <strong>{{ summary.unbudgeted_spent|currency }}</strong>.
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty-state">
+      <i class="bi bi-tags" aria-hidden="true"></i>
+      <p class="mt-2 mb-3">You have no categories yet. Create one to start tracking.</p>
+      <a class="btn btn-primary" href="{% url 'tracker:category_create' %}">Create your first category</a>
+    </div>
+  {% endif %}
+</section>
+
+<section class="card shadow-sm" aria-labelledby="recent-heading">
+  <div class="card-header bg-body d-flex justify-content-between align-items-center">
+    <h2 id="recent-heading" class="h5 mb-0">Recent expenses</h2>
+    <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:expense_list' %}?month={{ month|date:'Y-m' }}">View all</a>
+  </div>
+  {% if recent_expenses %}
+    <ul class="list-group list-group-flush">
+      {% for expense in recent_expenses %}
+        <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+          <div class="text-truncate">
+            <div class="fw-medium">{{ expense.category.name }}</div>
+            <div class="small text-body-secondary text-truncate">
+              {{ expense.date|date:"d M Y" }}{% if expense.notes %} &middot; {{ expense.notes }}{% endif %}
+            </div>
+          </div>
+          <span class="fw-semibold text-nowrap">{{ expense.amount|currency }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="card-body text-center text-body-secondary">
+      No expenses logged for {{ month|date:"F Y" }} yet.
+      <a href="{% url 'tracker:expense_create' %}">Add one</a>.
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

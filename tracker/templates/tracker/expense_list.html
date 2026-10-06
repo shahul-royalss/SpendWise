@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+
+{% block title %}Expenses{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Expenses</h1>
+  <a class="btn btn-primary" href="{% url 'tracker:expense_create' %}">
+    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add expense
+  </a>
+</div>
+
+<form method="get" class="card card-body shadow-sm mb-3" role="search" aria-label="Filter expenses">
+  <div class="row g-2 align-items-end">
+    <div class="col-sm-6 col-lg-3">
+      <label class="form-label small mb-1" for="{{ filter_form.month.id_for_label }}">Month</label>
+      {{ filter_form.month }}
+    </div>
+    <div class="col-sm-6 col-lg-3">
+      <label class="form-label small mb-1" for="{{ filter_form.category.id_for_label }}">Category</label>
+      {{ filter_form.category }}
+    </div>
+    <div class="col-sm-8 col-lg-4">
+      <label class="form-label small mb-1" for="{{ filter_form.q.id_for_label }}">Search notes</label>
+      {{ filter_form.q }}
+    </div>
+    <div class="col-sm-4 col-lg-2 d-flex gap-2">
+      <button type="submit" class="btn btn-outline-primary flex-fill">
+        <i class="bi bi-funnel me-1" aria-hidden="true"></i>Filter
+      </button>
+      {% if filter_form.is_active %}
+        <a class="btn btn-link px-1" href="{% url 'tracker:expense_list' %}">Clear</a>
+      {% endif %}
+    </div>
+  </div>
+  {% if filter_form.errors %}
+    <div class="text-danger small mt-2">Some filters were invalid and have been ignored.</div>
+  {% endif %}
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-body d-flex flex-wrap justify-content-between gap-2">
+    <span>{{ paginator.count }} expense{{ paginator.count|pluralize }}</span>
+    <span class="fw-semibold">Total: {{ filtered_total|currency }}</span>
+  </div>
+  {% if expenses %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Category</th>
+            <th scope="col">Notes</th>
+            <th scope="col" class="text-end">Amount</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+            <tr>
+              <td class="text-nowrap">{{ expense.date|date:"d M Y" }}</td>
+              <td><a class="text-decoration-none" href="{{ expense.category.get_absolute_url }}">{{ expense.category.name }}</a></td>
+              <td class="text-body-secondary">{{ expense.notes|truncatechars:60|default:"-" }}</td>
+              <td class="text-end fw-semibold text-nowrap">{{ expense.amount|currency }}</td>
+              <td class="text-end text-nowrap">
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'tracker:expense_update' expense.pk %}"
+                   aria-label="Edit expense of {{ expense.amount|currency }} on {{ expense.date|date:'d M Y' }}">
+                  <i class="bi bi-pencil" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-sm btn-outline-danger" href="{% url 'tracker:expense_delete' expense.pk %}"
+                   aria-label="Delete expense of {{ expense.amount|currency }} on {{ expense.date|date:'d M Y' }}">
+                  <i class="bi bi-trash" aria-hidden="true"></i>
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <i class="bi bi-receipt" aria-hidden="true"></i>
+      {% if filter_form.is_active %}
+        <p class="mt-2 mb-0">No expenses match these filters.</p>
+      {% else %}
+        <p class="mt-2 mb-3">You haven't logged any expenses yet.</p>
+        <a class="btn btn-primary" href="{% url 'tracker:expense_create' %}">Log your first expense</a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+{% include "partials/pagination.html" %}
+{% endblock %}

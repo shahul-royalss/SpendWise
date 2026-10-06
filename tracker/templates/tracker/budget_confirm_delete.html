@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+
+{% block title %}Delete budget{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm border-danger-subtle">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Delete this budget?</h1>
+        <p>
+          The <strong>{{ object.category.name }}</strong> budget of {{ object.monthly_limit|currency }}
+          for {{ object.month_year|date:"F Y" }} will be removed. Your expenses are not affected.
+        </p>
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-1" aria-hidden="true"></i>Delete budget
+          </button>
+          <a class="btn btn-outline-secondary" href="{% url 'tracker:budget_list' %}?month={{ object.month_year|date:'Y-m' }}">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

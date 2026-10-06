@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+
+{% block title %}Delete expense{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm border-danger-subtle">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Delete this expense?</h1>
+        <dl class="row mb-4">
+          <dt class="col-4">Amount</dt>
+          <dd class="col-8">{{ object.amount|currency }}</dd>
+          <dt class="col-4">Date</dt>
+          <dd class="col-8">{{ object.date|date:"d M Y" }}</dd>
+          <dt class="col-4">Category</dt>
+          <dd class="col-8">{{ object.category.name }}</dd>
+          {% if object.notes %}
+            <dt class="col-4">Notes</dt>
+            <dd class="col-8">{{ object.notes }}</dd>
+          {% endif %}
+        </dl>
+        <form method="post" class="d-flex gap-2">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash me-1" aria-hidden="true"></i>Delete expense
+          </button>
+          <a class="btn btn-outline-secondary" href="{% url 'tracker:expense_list' %}">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

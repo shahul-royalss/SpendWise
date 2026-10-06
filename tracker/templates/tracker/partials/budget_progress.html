@@ -1,0 +1,9 @@
+{% if row.has_budget %}
+  <div class="progress budget-progress" role="progressbar" aria-label="{{ row.category.name }} budget used"
+       aria-valuenow="{{ row.progress }}" aria-valuemin="0" aria-valuemax="100">
+    <div class="progress-bar bg-{{ row.alert_level.css_class }}" style="width: {{ row.progress }}%"></div>
+  </div>
+  <div class="small text-body-secondary mt-1">{{ row.percentage }}% used</div>
+{% else %}
+  <span class="small text-body-secondary">No budget set</span>
+{% endif %}

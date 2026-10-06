@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0">Categories</h1>
+  <a class="btn btn-primary" href="{% url 'tracker:category_create' %}">
+    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add category
+  </a>
+</div>
+
+{% if categories %}
+  <div class="row g-3">
+    {% for category in categories %}
+      <div class="col-md-6 col-xl-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h2 class="h5 card-title">
+              <a class="text-decoration-none" href="{{ category.get_absolute_url }}">{{ category.name }}</a>
+            </h2>
+            <p class="card-text small text-body-secondary">{{ category.description|default:"No description" }}</p>
+            <p class="small mb-0">
+              <i class="bi bi-receipt me-1" aria-hidden="true"></i>{{ category.expense_count }} expense{{ category.expense_count|pluralize }}
+              <span class="mx-1 text-body-secondary">&middot;</span>
+              <i class="bi bi-piggy-bank me-1" aria-hidden="true"></i>{{ category.budget_count }} budget{{ category.budget_count|pluralize }}
+            </p>
+          </div>
+          <div class="card-footer bg-body d-flex gap-2">
+            <a class="btn btn-sm btn-outline-primary" href="{{ category.get_absolute_url }}">View</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'tracker:category_update' category.pk %}">Edit</a>
+            <a class="btn btn-sm btn-outline-danger ms-auto" href="{% url 'tracker:category_delete' category.pk %}">Delete</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card shadow-sm">
+    <div class="empty-state">
+      <i class="bi bi-tags" aria-hidden="true"></i>
+      <p class="mt-2 mb-3">No categories yet. Categories group your expenses, like Food, Transport or Rent.</p>
+      <a class="btn btn-primary" href="{% url 'tracker:category_create' %}">Create your first category</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
