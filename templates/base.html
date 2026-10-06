@@ -1,0 +1,30 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SpendWise: log expenses, set monthly budgets per category and get warned before you overspend.">
+  <title>{% block title %}Personal expense tracker{% endblock %} | SpendWise</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons/bootstrap-icons.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-body-tertiary">
+  <a class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-light" href="#main">Skip to content</a>
+  {% include "partials/navbar.html" %}
+
+  <main id="main" class="container py-4 flex-grow-1">
+    {% include "partials/messages.html" %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="border-top bg-body py-3 mt-auto">
+    <div class="container d-flex flex-wrap justify-content-between gap-2 small text-body-secondary">
+      <span><i class="bi bi-wallet2 me-1" aria-hidden="true"></i>SpendWise</span>
+      <span>Know where your money goes, before the month ends.</span>
+    </div>
+  </footer>
+
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

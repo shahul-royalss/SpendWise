@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Log in{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-sm-10 col-md-7 col-lg-5 col-xl-4">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <i class="bi bi-wallet2 display-6 text-primary" aria-hidden="true"></i>
+          <h1 class="h4 mt-2 mb-1">Log in to SpendWise</h1>
+          <p class="text-body-secondary small mb-0">Track expenses and stay within your budgets.</p>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          {% include "partials/form_errors.html" %}
+          {% for field in form %}
+            {% include "partials/form_field.html" %}
+          {% endfor %}
+          <input type="hidden" name="next" value="{{ next }}">
+          <button type="submit" class="btn btn-primary w-100">Log in</button>
+        </form>
+        <p class="text-center small mt-3 mb-0">
+          New here? <a href="{% url 'accounts:register' %}">Create an account</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

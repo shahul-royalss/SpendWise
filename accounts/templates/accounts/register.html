@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <div class="text-center mb-4">
+          <i class="bi bi-wallet2 display-6 text-primary" aria-hidden="true"></i>
+          <h1 class="h4 mt-2 mb-1">Create your account</h1>
+          <p class="text-body-secondary small mb-0">Your expenses and budgets are private to you.</p>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          {% include "partials/form_errors.html" %}
+          {% for field in form %}
+            {% include "partials/form_field.html" %}
+          {% endfor %}
+          <button type="submit" class="btn btn-primary w-100">Register</button>
+        </form>
+        <p class="text-center small mt-3 mb-0">
+          Already registered? <a href="{% url 'accounts:login' %}">Log in</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

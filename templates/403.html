@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Access denied{% endblock %}
+
+{% block content %}
+<div class="empty-state">
+  <i class="bi bi-shield-lock" aria-hidden="true"></i>
+  <h1 class="h3 mt-3">Access denied</h1>
+  <p class="text-body-secondary">You do not have permission to open this page.</p>
+  <a class="btn btn-primary" href="{% url 'tracker:dashboard' %}">Back to the dashboard</a>
+</div>
+{% endblock %}
