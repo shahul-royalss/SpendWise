@@ -62,7 +62,7 @@ Every model also has `created_at` and `updated_at`. Money uses `DecimalField(max
 ### FR-1 Authentication
 
 - FR-1.1 A visitor can register with a username and password; email is optional. Django's password validators apply.
-- FR-1.2 A registered user can log in and log out. Logout uses POST so a third-party page cannot log the user out with a link.
+- FR-1.2 A registered user can log in and log out. Logout uses POST so a third-party page cannot log the user out with a link. Opening `/accounts/logout/` directly shows a confirmation page.
 - FR-1.3 Any unauthenticated request to the dashboard, expense, budget or category pages redirects to `/accounts/login/?next=...`.
 - FR-1.4 A logged-in user who opens the login or register page is sent to the dashboard.
 
@@ -102,6 +102,7 @@ For the selected month (default: the current month, changeable with `?month=YYYY
 - FR-5.4 A breakdown row per category: limit, spent, remaining (negative when over), percentage used, share of total spending, progress bar and status badge.
 - FR-5.5 The five most recent expenses of the month.
 - FR-5.6 Links to the previous and next month.
+- FR-5.7 A donut chart of the month's spending by category, and a six-month trend of spending against the total budget.
 
 ### FR-6 Visual budget alerts
 
@@ -131,7 +132,7 @@ For the selected month (default: the current month, changeable with `?month=YYYY
 | Security | CSRF on every form, POST for every state change, ownership enforced in querysets and forms, no secrets in the repo, Content-Security-Policy, clickjacking protection, Django password hashing and validators, HTTPS settings switch on with one variable |
 | Data integrity | Database check constraints for positive amounts and limits, unique constraints for category names and budgets, `PROTECT` on expense categories, decimal money |
 | Performance | Dashboard summary uses a fixed number of queries (2) whatever the number of categories; expense list is paginated; index on `(user, date)` |
-| Accessibility | Semantic headings, labels on every input, `aria` attributes on progress bars, colour never the only signal (badges have text and icons), skip link |
+| Accessibility | Semantic headings, labels on every input, `aria` attributes on progress bars and charts, colour never the only signal (badges have text and icons), skip link, every animation off under `prefers-reduced-motion` |
 | Portability | Runs with `pip install` + `migrate` + `runserver`, no extra services; Bootstrap is vendored so the UI works offline |
 | Quality | Ruff lint and format, automated tests with coverage, CI on every push |
 
@@ -159,8 +160,8 @@ For the selected month (default: the current month, changeable with `?month=YYYY
 | Monthly budgets per category | `tracker/views/budgets.py`, `BudgetForm` | `test_views_budgets.py`, `test_forms.py` |
 | `POST /expenses/create/`: 302 on success, 200 on errors | `ExpenseCreateView` | `test_views_expenses.py` |
 | Negative and zero amounts rejected | `ExpenseForm.clean_amount` + DB check constraint | `test_forms.py`, `test_models.py`, `test_views_expenses.py` |
-| Dashboard totals, remaining per category, breakdown | `tracker/services.py`, `dashboard.html` | `test_services.py`, `test_views_dashboard.py` |
-| Normal < 80% <= Warning < 100% <= Danger | `get_alert_level` | `test_alerts.py` |
+| Dashboard totals, remaining per category, breakdown | `tracker/services.py`, `dashboard.html` | `test_budget_calculations.py`, `test_views_dashboard.py` |
+| Normal < 80% <= Warning < 100% <= Danger | `get_alert_level` | `test_alert_thresholds.py` |
 | Safe category deletion | `CategoryDeleteView`, `PROTECT` | `test_views_categories.py`, `test_models.py` |
 | SQLite | `config/settings.py` | n/a |
 

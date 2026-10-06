@@ -66,6 +66,16 @@ Build plan for the hackathon day. Items are checked off as they land on `main`.
 - [x] Dockerfile
 - [x] Push to the public GitHub repository
 
+## 10. UI polish
+
+- [x] Design layer on top of Bootstrap: theme tokens, gradient hero, glass navbar, Inter font
+- [x] Light and dark themes with a remembered toggle
+- [x] Usage rings, spending donut and six-month trend chart in SVG/CSS
+- [x] Motion: staggered entrances, growing bars and rings, count-up numbers, toasts with timers
+- [x] `prefers-reduced-motion` turns every animation off
+- [x] Floating labels, inline validation, empty states and a mobile action button
+- [x] Logout URL opened with GET shows a confirmation page instead of an error
+
 ## Ideas for later
 
 - [ ] Charts for month-over-month spending

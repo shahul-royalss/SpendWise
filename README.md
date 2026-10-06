@@ -8,22 +8,40 @@ Built for the SVCET Hackathon (powered by LearnSquare) with **Django 5.2, SQLite
 
 ## Features
 
-- **Accounts**: register, log in and log out (POST only). Every page except login and register requires an account.
+- **Accounts**: register, log in and log out. Logging out happens on POST; opening `/accounts/logout/` directly shows a confirmation page. Every page except login and register requires an account.
 - **Categories**: create, view, edit and delete your own categories. Names are unique per user, ignoring case.
 - **Monthly budgets**: one limit per category per month, with create, edit and delete. Last month's budgets can be copied with one click.
 - **Expenses**: log amount, date, category and optional notes. `POST /expenses/create/` returns 302 on success and 200 with errors, as the brief specifies. The list supports filters, totals and pagination.
 - **Dashboard**:
   - total spent this month
   - total budget
-  - remaining budget
-  - a category breakdown with progress bars
-  - alert banners
-  - recent expenses
+  - remaining budget, with a usage ring
+  - a category breakdown table with progress bars and status badges
+  - a "where your money went" donut chart
+  - a six-month spending trend with budget markers
+  - alert banners and recent expenses
   - previous / next month navigation
-- **Budget alerts**: badges for Normal (< 80%), Warning (>= 80%) and Danger (>= 100%), plus a flash message the moment an expense crosses a threshold.
+- **Budget alerts**: badges for Normal (< 80%), Warning (>= 80%) and Danger (>= 100%), plus a toast notification the moment an expense crosses a threshold.
 - **Safe deletes**: a category that still has expenses can't be deleted until you choose where to move them. The database also protects the link with `on_delete=PROTECT`.
 - **Strict data isolation**: every query is filtered by the logged-in user. Other users' records return 404.
-- **Demo data**: `python manage.py seed_demo` creates an account that shows every alert state.
+- **Demo data**: `python manage.py seed_demo` creates an account with six months of history that shows every alert state.
+
+### Interface
+
+The UI is Bootstrap 5.3 with a custom design layer (`static/css/app.css`). Nothing is loaded from a CDN, so it looks the same offline.
+
+- **Theme**: light and dark themes, following the system setting, plus a toggle that is remembered per browser.
+- **Look**: gradient hero, glass navigation bar and the vendored Inter font.
+- **Charts**: drawn in SVG and CSS, with no chart library. They include usage rings, a spending donut and the trend bars.
+- **Motion**:
+  - staggered fade-in of sections
+  - bars and rings that grow to their value
+  - numbers that count up
+  - a pulse on danger badges
+  - toasts that slide in with a countdown bar
+- **Reduced motion**: every animation turns off when the system asks for it (`prefers-reduced-motion`).
+- **Mobile**: card layouts, a collapsing menu and a floating "add expense" button.
+- **Forms**: floating labels with inline validation messages.
 
 ## Quick start
 
@@ -61,20 +79,21 @@ No configuration is needed to run locally. To change settings, copy `.env.exampl
 ```bash
 pip install -r requirements-dev.txt
 
-python manage.py test                              # 180+ tests
+python manage.py test                              # 200+ tests
 coverage run manage.py test && coverage report     # coverage (fails under 90%)
 ruff check . && ruff format --check .              # lint and formatting
 ```
 
 | Test module | What it proves |
 | --- | --- |
-| `tracker/tests/test_alerts.py` | Threshold logic: 79.99% Normal, exactly 80% Warning, exactly 100% Danger, uneven limits, rounding |
-| `tracker/tests/test_services.py` | Budget calculations: month boundaries, remaining, overspend, totals, unbudgeted spending, query count, copying budgets |
+| `tracker/tests/test_alert_thresholds.py` | Threshold alert logic: 79.99% Normal, exactly 80% Warning, exactly 100% Danger, uneven limits, rounding |
+| `tracker/tests/test_budget_calculations.py` | Budget calculations: month boundaries, remaining, overspend, totals, unbudgeted spending, six-month trend, query counts, copying budgets |
 | `tracker/tests/test_models.py` | Database constraints: positive amounts, unique names and budgets, `PROTECT`, month normalisation |
 | `tracker/tests/test_forms.py` | Validation: negative/zero/malformed amounts, category by name or id, duplicates, other users' categories |
 | `tracker/tests/test_views_*.py` | End-to-end requests for every page, including the exact spec example for `POST /expenses/create/` |
 | `tracker/tests/test_views_access.py` | Login required everywhere; another user's objects give 404 for GET and POST |
-| `accounts/tests.py` | Register, login (safe `next` only), logout with POST |
+| `tracker/tests/test_money_and_tags.py` | Money formatting, badges, usage rings, donut and trend chart maths |
+| `accounts/tests.py` | Register, login (safe `next` only), logout only on POST |
 | `core/tests.py` | Security headers, Bootstrap form styling, locally served assets |
 
 CI runs the same checks on Python 3.10 to 3.13 for every push ([workflow](.github/workflows/ci.yml)).
@@ -137,7 +156,7 @@ amount=45.50&date=2023-10-15&category=Food&notes=Lunch+with+client
 
 | Outcome | Response |
 | --- | --- |
-| Valid | `302 Found`, `Location: /dashboard/`, plus a flash message (and a budget warning if a threshold was crossed) |
+| Valid | `302 Found`, `Location: /dashboard/`, plus a confirmation toast (and a budget warning if a threshold was crossed) |
 | Invalid (e.g. `amount=-5`, `amount=0`, unknown category) | `200 OK`, the form is shown again with field errors |
 | Not logged in | `302 Found` to `/accounts/login/?next=/expenses/create/` |
 
@@ -146,7 +165,7 @@ amount=45.50&date=2023-10-15&category=Food&notes=Lunch+with+client
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/` | Redirects to the dashboard |
-| GET | `/dashboard/?month=YYYY-MM` | Monthly summary, breakdown and alerts |
+| GET | `/dashboard/?month=YYYY-MM` | Monthly summary, breakdown, charts and alerts |
 | GET | `/expenses/?month=&category=&q=&page=` | Expense list with filters |
 | GET, POST | `/expenses/create/` | Log an expense |
 | GET, POST | `/expenses/<id>/update/` | Edit an expense |
@@ -163,7 +182,7 @@ amount=45.50&date=2023-10-15&category=Food&notes=Lunch+with+client
 | POST | `/budgets/copy/` | Copy last month's budgets into `month` |
 | GET, POST | `/accounts/register/` | Create an account (logs you in) |
 | GET, POST | `/accounts/login/` | Log in |
-| POST | `/accounts/logout/` | Log out |
+| GET, POST | `/accounts/logout/` | POST logs out; GET only shows a confirmation page |
 | | `/admin/` | Django admin |
 
 ## Project structure
@@ -179,12 +198,16 @@ tracker/
   forms.py       user-scoped forms    fields.py  MonthField, CategoryChoiceField
   mixins.py      ownership, user-aware forms, month navigation
   views/         dashboard, expenses, categories, budgets
-  templatetags/  |currency filter, {% alert_badge %} tag
+  templatetags/  |currency, badges, usage rings, donut and trend charts
   management/    seed_demo command
   templates/     tracker pages and partials
   tests/         unit + integration tests
-templates/     base layout, partials, 403/404/500 pages
-static/        app.css and vendored Bootstrap 5.3.8 + Bootstrap Icons
+templates/     base layout, navbar, toasts, form partials, 403/404/500 pages
+static/
+  css/app.css    design system: theme tokens, dark mode, components, motion
+  js/theme.js    applies the saved light/dark theme before the first paint
+  js/app.js      count-up numbers, theme toggle, toasts, auto-submitting filters
+  vendor/        Bootstrap 5.3.8, Bootstrap Icons 1.13.1, Inter 4.1 (OFL)
 ```
 
 More detail: [PRD.md](PRD.md) (requirements and acceptance checklist), [Techstack.md](Techstack.md) (choices and architecture), [UIspec.md](UIspec.md) (screens and components), [Tasks.md](Tasks.md) (build plan).
@@ -210,6 +233,7 @@ Settings come from environment variables. A `.env` file in the project root is l
 - No secrets in the repository. The secret key comes from the environment, and `.env` is git-ignored.
 - `DEBUG` is off by default. `DJANGO_SECURE_HTTPS=True` enables SSL redirect, secure cookies and HSTS.
 - CSRF protection on every form. State changes (including logout) only happen on POST.
+- JavaScript is optional enhancement only, loaded from our own origin (no inline scripts). The only thing stored in the browser is the light/dark preference.
 - Ownership is enforced in querysets, forms and model validation. Other users' records return 404.
 - Input validation in forms plus database check and unique constraints.
 - Django's password hashing and all four password validators. Login only follows same-site `next` URLs.
