@@ -12,28 +12,38 @@ Server-rendered pages built with Django Templates and Bootstrap 5.3. A design la
 
 ## 2. Visual language
 
-### Colour tokens
+### Colour tokens: the "ledger" palette
+
+The palette borrows from paper ledgers and banknotes rather than from generic app templates.
+
+- **Base:** warm paper and ink.
+- **Brand:** one deep green, with one bright accent used sparingly.
+- **States:** muted status colours.
+
+There are no gradients, glass effects or neon tones.
 
 | Token | Light | Dark | Used for |
 | --- | --- | --- | --- |
-| Primary | `#6366f1` indigo | `#818cf8` | Links, active nav, primary buttons |
-| Brand gradient | indigo `#6366f1` to violet `#8b5cf6` to pink `#ec4899` | same | Logo, primary buttons, current month bar |
-| Hero gradient | `#4338ca` to `#6d28d9` to `#db2777` (slowly shifting) | same | Dashboard hero, auth panel |
-| Normal | `#10b981` emerald | `#34d399` | Budget below 80% |
-| Warning | `#f59e0b` amber | `#fbbf24` | Budget at 80% to 99.9% |
-| Danger | `#ef4444` red | `#f87171` | Budget at 100% or more, destructive actions |
-| No budget | `#64748b` slate | `#94a3b8` | Category without a budget this month |
-| Surface | `#ffffff` on `#f4f6fb` | `#10182b` on `#0a0f1e` | Cards on page background |
+| Paper (page) | `#f6f5f0` | `#101412` | Page background |
+| Surface | `#ffffff` | `#161b18` | Cards, navbar, inputs |
+| Ink | `#1a1d1b` | `#e5e8e3` | Body text |
+| Pine (brand) | `#1f5c4a` | `#8fd4ae` (text) | Logo, primary buttons, links, active nav, current month bar |
+| Statement card | `#153d31` + fine hatching | `#173b30` | Dashboard summary, auth panel |
+| Lime (accent) | `#c4e36b` | `#c4e36b` | Highlights on the pine card, "Add expense" on the card, primary buttons in dark mode |
+| Normal | `#2e7d52` green | `#5dbb86` | Budget below 80% |
+| Warning | `#c9850e` ochre | `#e3aa3e` | Budget at 80% to 99.9% |
+| Danger | `#c0412b` brick | `#e5735d` | Budget at 100% or more, destructive actions |
+| No budget | `#858a82` warm grey | `#9aa39b` | Category without a budget this month |
 
-- Text that sits on a light background uses the darker `*-text-emphasis` shade, which meets WCAG AA contrast. The bright base colours are only used for fills (bars, rings, icons).
-- Each category gets a stable identity colour from a 10-colour palette (by id). It is used for its avatar, legend dot and donut segment, and is deliberately separate from the green / amber / red status colours.
+- Text on light backgrounds uses the darker `*-text-emphasis` shade of each colour, which meets WCAG AA contrast. The base colours are used for fills (bars, rings, icons).
+- Each category gets a stable identity colour from a 10-colour earthy palette (steel blue, copper, olive, plum, teal, rosewood…), chosen by id. It is used for the category's avatar, legend square and donut segment.
 
 ### Typography and shape
 
-- Font: Inter (variable, self-hosted), with `tabular-nums` for every amount.
-- Headings: weight 800 with slight negative letter spacing. Eyebrow labels are uppercase, 0.75rem, letter-spaced.
-- Radius: 0.75rem for controls, 1.1rem for cards, 1.6rem for the hero.
-- Elevation: soft two-layer shadows; cards lift on hover.
+- Font: IBM Plex Sans (self-hosted, 400 to 700), with `tabular-nums` for every amount.
+- Headings: weight 600 with slight negative letter spacing. Eyebrow labels are uppercase, 0.75rem, letter-spaced.
+- Radius: 0.5rem for controls, 0.75rem for cards, 1rem for the statement card.
+- Elevation: flat surfaces with hairline borders and a barely-there shadow. Cards rise 2px on hover.
 
 ### Themes
 
@@ -43,18 +53,18 @@ Server-rendered pages built with Django Templates and Bootstrap 5.3. A design la
 
 ## 3. Motion
 
+Motion is short (under half a second for entrances) and only explains change. Nothing loops forever.
+
 | Animation | Where | Details |
 | --- | --- | --- |
-| Fade-up entrance | Page headers, cards, table rows | 0.7s, staggered 80ms per item (35ms for rows) |
-| Gradient drift | Dashboard hero, auth panel | 16s background-position loop |
-| Floating blobs | Hero, auth panel, empty-state icons | Blurred shapes drifting 12px up and down |
-| Bar fill | Progress bars, hero budget bar | Grows from 0 to its width in 1.1s |
+| Fade-up entrance | Page headers, cards, alerts | 0.45s, 8px rise, staggered 50ms per item |
+| Row fade-in | Table rows | 0.35s opacity only, staggered 25ms |
+| Bar fill | Progress bars, card budget bar | Grows from 0 to its width in 0.8s |
 | Ring and donut draw | Usage rings, spending donut | Stroke draws from 0; donut segments draw one after another |
 | Trend bars | Six-month chart | Grow from the baseline, staggered; hover shows the amount |
 | Count-up | Stat cards, donut total | Numbers count to their value in 1.2s (ease-out) |
-| Danger cues | Danger badges, danger alert icons | Heartbeat icon and a soft pulse ring; shimmer across over-budget bars |
-| Toasts | Flash messages | Slide in from the right with a countdown bar; auto-close after 6s (12s for warnings) |
-| Micro-interactions | Buttons, icon buttons, logo, new-category card | Lift, rotate or gradient slide on hover; press feedback on click |
+| Toasts | Flash messages | Slide in 16px from the right with a countdown bar; auto-close after 6s (12s for warnings) |
+| Hover | Cards, buttons, nav links | Colour change or a 2px lift, 150 to 200ms |
 
 - All entrance animations are time-based CSS, so content always ends up visible even if JavaScript is disabled.
 - `@media (prefers-reduced-motion: reduce)` cuts every animation and transition to near zero, and the count-up script is skipped.
@@ -63,7 +73,7 @@ Server-rendered pages built with Django Templates and Bootstrap 5.3. A design la
 
 ```text
 +------------------------------------------------------------------------------+
-| [logo] SpendWise    Dashboard  Expenses  Budgets  Categories   [+ Add] [sun] [user v] |  sticky glass navbar
+| [logo] SpendWise    Dashboard  Expenses  Budgets  Categories   [+ Add] [sun] [user v] |  sticky navbar
 +------------------------------------------------------------------------------+
 |                                                              [toasts, top right]  |
 |  page content (container-xl)                                                      |
@@ -83,7 +93,7 @@ Server-rendered pages built with Django Templates and Bootstrap 5.3. A design la
 
 ### 5.1 Log in, register and log-out confirmation
 
-- Split card: on the left an animated gradient panel with the product pitch, three feature points and a floating mock budget card. On the right, the form.
+- Split card: on the left a pine statement panel with the product pitch, three feature points and a mock budget card. On the right, the form.
 - On phones only the form is shown.
 - Floating-label inputs. Field errors appear under each field, and form-wide errors (such as a wrong password) appear in a red alert above the form.
 - Opening `/accounts/logout/` directly shows "Log out of SpendWise?" with a POST button.
@@ -95,7 +105,7 @@ Server-rendered pages built with Django Templates and Bootstrap 5.3. A design la
 | OCTOBER 2026 OVERVIEW                                    [<] October 2026 [>] |
 | Good afternoon, demo                                          [+ Add expense] |
 | You've used 71.3% of your October budget and 3 categories need attention.      |
-| [=================71%=====          ]                     (gradient hero)     |
+| [=================71%=====          ]                     (statement card)    |
 +------------------------------------------------------------------------------+
 [x] Transport is over budget by ₹450.00 (115.0% used).                  [View]
 [x] Entertainment has used its entire budget of ₹2,000.00.              [View]
@@ -114,10 +124,10 @@ Server-rendered pages built with Django Templates and Bootstrap 5.3. A design la
 +--------------------------------------------+ +-----------------------------+
 ```
 
-- Alert banners list only Warning and Danger categories, worst first. Danger icons pulse.
+- Alert banners list only Warning and Danger categories, worst first, with a solid status icon.
 - The Remaining card is coloured by the overall state and carries a usage ring.
 - Rows without a budget show "Set budget", which opens the budget form with category and month filled in.
-- The current month's trend bar uses the brand gradient; a month over its budget turns red.
+- Past months are warm grey, the current month is pine, and a month over its budget turns brick red.
 - Empty states: no categories (with "Create your first category"), no spending (donut), no history (trend), no expenses (recent list).
 
 ### 5.3 Expenses
@@ -150,7 +160,7 @@ If the user has no categories, the create page explains why and links to "Create
 
 ### 5.6 Error pages
 
-- 404 and 403: large gradient status code floating gently, a short explanation and "Back to the dashboard". A 404 is also what another user's record looks like.
+- 404 and 403: a large status code in pine, a short explanation and "Back to the dashboard". A 404 is also what another user's record looks like.
 - 403 (CSRF failure): explains that the form expired.
 - 500: a standalone page with inline styles, so it renders even if the layout itself is broken.
 
@@ -159,12 +169,12 @@ If the user has no categories, the create page explains why and links to "Create
 | Component | Implementation |
 | --- | --- |
 | Status badge | `{% alert_badge %}`: `badge rounded-pill bg-{state}-subtle text-{state}-emphasis border` + icon + label |
-| Progress bar | Bootstrap `.progress` with gradient fill per state, width capped at 100%, percentage beside it |
+| Progress bar | Bootstrap `.progress` with a solid fill per state, width capped at 100%, percentage beside it |
 | Usage ring | `{% progress_ring %}`: SVG circle, `pathLength=100`, capped at 100% while the label shows the real value |
 | Spending donut | `{% spending_donut %}`: one SVG circle per category (dash array = share), small gaps, total in the centre, legend below |
 | Trend chart | `{% trend_chart %}`: CSS grid of bars scaled to the highest month, dashed budget marker, hover tooltip, hidden list for screen readers |
-| Stat card | Label, gradient icon bubble, count-up value, caption |
-| Toast | Bootstrap toast with gradient icon, message, close button and countdown bar |
+| Stat card | Label, tinted icon tile, count-up value, caption |
+| Toast | Bootstrap toast with a status-coloured edge and icon, message, close button and countdown bar |
 | Form field | Floating label, Bootstrap classes added by `BootstrapFormMixin`, error message with icon |
 | Empty state | Floating icon tile, sentence and optional primary button |
 

@@ -12,7 +12,7 @@ The brief fixes the core stack (Django, SQLite, Django Templates with Bootstrap)
 | Templates | Django Templates | built in | Server-rendered pages, auto-escaping against XSS |
 | UI framework | Bootstrap | 5.3.8 | Required by the brief. Vendored under `static/vendor/`, no CDN needed |
 | Icons | Bootstrap Icons | 1.13.1 | Matches Bootstrap, vendored as a web font |
-| Font | Inter (variable) | 4.1 | Clean numerals for money; vendored under the SIL Open Font License |
+| Font | IBM Plex Sans | 1.1 | Plain, slightly technical type that suits figures; four weights vendored under the SIL Open Font License |
 | Charts and motion | SVG + CSS, plain JavaScript | n/a | Rings, donut and trend bars drawn without a chart library; JS only adds count-up numbers, the theme toggle and toast timers |
 | Static files | WhiteNoise | 6.12 | Serves CSS, JS and fonts from Django itself, also with `DEBUG=False` |
 | Configuration | python-dotenv | 1.2 | Reads a local `.env` file; real settings come from environment variables |
@@ -22,6 +22,7 @@ The brief fixes the core stack (Django, SQLite, Django Templates with Bootstrap)
 | CI | GitHub Actions | n/a | Lint, Django checks, migration check and tests on Python 3.10 to 3.13 |
 | App server (deploy) | Gunicorn | 23.0 | Production WSGI server used in the Docker image |
 | Container | Docker | n/a | `python:3.13-slim`, runs as a non-root user, SQLite file on a volume |
+| Hosting (demo) | Vercel | n/a | Zero-config Django on Vercel Functions (Mumbai region); SQLite lives in `/tmp` and is migrated on boot, so demo data is temporary |
 
 ## Why server-rendered Django instead of an API + SPA
 
@@ -54,7 +55,7 @@ personal-expense-tracker/
 |   |-- management/    seed_demo command
 |   `-- tests/         unit and integration tests
 |-- templates/         base layout, shared partials, error pages
-`-- static/            app.css design layer, theme.js, app.js, vendored Bootstrap, icons and Inter
+`-- static/            app.css design layer, theme.js, app.js, vendored Bootstrap, icons and IBM Plex Sans
 ```
 
 ## Architecture notes

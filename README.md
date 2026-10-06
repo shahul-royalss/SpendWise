@@ -31,14 +31,18 @@ Built for the SVCET Hackathon (powered by LearnSquare) with **Django 5.2, SQLite
 The UI is Bootstrap 5.3 with a custom design layer (`static/css/app.css`). Nothing is loaded from a CDN, so it looks the same offline.
 
 - **Theme**: light and dark themes, following the system setting, plus a toggle that is remembered per browser.
-- **Look**: gradient hero, glass navigation bar and the vendored Inter font.
+- **Look**: a "ledger" palette:
+  - warm paper backgrounds and ink text
+  - a deep pine brand colour with one lime accent
+  - muted green / ochre / brick for budget states
+  - IBM Plex Sans, self-hosted
+  - flat surfaces with hairline borders, no gradients or glass effects
 - **Charts**: drawn in SVG and CSS, with no chart library. They include usage rings, a spending donut and the trend bars.
-- **Motion**:
-  - staggered fade-in of sections
-  - bars and rings that grow to their value
-  - numbers that count up
-  - a pulse on danger badges
-  - toasts that slide in with a countdown bar
+- **Motion** (short and quiet):
+  - sections fade in
+  - bars and rings fill to their value
+  - totals count up
+  - toasts slide in with a countdown bar
 - **Reduced motion**: every animation turns off when the system asks for it (`prefers-reduced-motion`).
 - **Mobile**: card layouts, a collapsing menu and a floating "add expense" button.
 - **Forms**: floating labels with inline validation messages.
@@ -165,6 +169,7 @@ amount=45.50&date=2023-10-15&category=Food&notes=Lunch+with+client
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/` | Redirects to the dashboard |
+| GET | `/healthz/` | Health check, no login needed |
 | GET | `/dashboard/?month=YYYY-MM` | Monthly summary, breakdown, charts and alerts |
 | GET | `/expenses/?month=&category=&q=&page=` | Expense list with filters |
 | GET, POST | `/expenses/create/` | Log an expense |
@@ -207,7 +212,7 @@ static/
   css/app.css    design system: theme tokens, dark mode, components, motion
   js/theme.js    applies the saved light/dark theme before the first paint
   js/app.js      count-up numbers, theme toggle, toasts, auto-submitting filters
-  vendor/        Bootstrap 5.3.8, Bootstrap Icons 1.13.1, Inter 4.1 (OFL)
+  vendor/        Bootstrap 5.3.8, Bootstrap Icons 1.13.1, IBM Plex Sans (OFL)
 ```
 
 More detail: [PRD.md](PRD.md) (requirements and acceptance checklist), [Techstack.md](Techstack.md) (choices and architecture), [UIspec.md](UIspec.md) (screens and components), [Tasks.md](Tasks.md) (build plan).
@@ -227,6 +232,8 @@ Settings come from environment variables. A `.env` file in the project root is l
 | `SQLITE_PATH` | `./db.sqlite3` | Database file location |
 | `DJANGO_STATIC_ROOT` | empty | Only needed for `collectstatic` |
 | `CURRENCY_SYMBOL` | `₹` | Symbol used when formatting money |
+| `DJANGO_MIGRATE_ON_START` | `False` | Run migrations when the app boots (serverless hosts with an empty `/tmp`) |
+| `DEMO_USERNAME`, `DEMO_PASSWORD` | empty | With `DJANGO_MIGRATE_ON_START`, create this demo account on boot |
 
 ## Security
 
@@ -247,6 +254,21 @@ Settings come from environment variables. A `.env` file in the project root is l
 - The ORM is used for every query (no raw SQL). Templates auto-escape all user content.
 
 ## Deployment
+
+`GET /healthz/` returns `{"status": "ok"}` once the database answers, for uptime checks.
+
+### Vercel
+
+The repository deploys to Vercel as-is (Vercel's zero-config Django support):
+
+- `manage.py` and `WSGI_APPLICATION` are detected automatically. Static files are collected at build time and served from Vercel's CDN.
+- `vercel.json` pins the function to the Mumbai region (`bom1`) and keeps tests out of the bundle.
+- A Vercel function can only write to `/tmp`, so set `SQLITE_PATH=/tmp/spendwise.sqlite3` and `DJANGO_MIGRATE_ON_START=True`. The schema is then created when an instance starts. With `DEMO_USERNAME` / `DEMO_PASSWORD` set, a demo account with sample data is created as well.
+- Also set `DJANGO_SECRET_KEY`, `DJANGO_ALLOWED_HOSTS=.vercel.app` and `DJANGO_SECURE_HTTPS=True`.
+
+Data on Vercel is temporary: it resets whenever Vercel starts a fresh instance. That suits a live demo. For data that has to persist, use the Docker image below with a volume.
+
+### Docker
 
 A production image runs Gunicorn behind a non-root user, with the SQLite file on a volume:
 

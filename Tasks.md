@@ -68,13 +68,21 @@ Build plan for the hackathon day. Items are checked off as they land on `main`.
 
 ## 10. UI polish
 
-- [x] Design layer on top of Bootstrap: theme tokens, gradient hero, glass navbar, Inter font
+- [x] Design layer on top of Bootstrap: "ledger" palette (paper, ink, pine, one lime accent), IBM Plex Sans
+- [x] Replace the generic gradient / glass look with flat surfaces, hairline borders and muted status colours
 - [x] Light and dark themes with a remembered toggle
 - [x] Usage rings, spending donut and six-month trend chart in SVG/CSS
-- [x] Motion: staggered entrances, growing bars and rings, count-up numbers, toasts with timers
+- [x] Motion: short fade-ins, filling bars and rings, count-up numbers, toasts with timers
 - [x] `prefers-reduced-motion` turns every animation off
 - [x] Floating labels, inline validation, empty states and a mobile action button
 - [x] Logout URL opened with GET shows a confirmation page instead of an error
+
+## 11. Live demo on Vercel
+
+- [x] `vercel.json` (Mumbai region, tests excluded from the bundle)
+- [x] Migrate the `/tmp` SQLite database on boot and seed an optional demo account
+- [x] `/healthz/` endpoint for uptime checks
+- [x] Production deployment with secrets in Vercel environment variables
 
 ## Ideas for later
 
