@@ -1,7 +1,10 @@
 {% if form.non_field_errors %}
-  <div class="alert alert-danger" role="alert">
-    {% for error in form.non_field_errors %}
-      <div>{{ error }}</div>
-    {% endfor %}
+  <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert">
+    <i class="bi bi-exclamation-octagon-fill mt-1" aria-hidden="true"></i>
+    <div>
+      {% for error in form.non_field_errors %}
+        <div>{{ error }}</div>
+      {% endfor %}
+    </div>
   </div>
 {% endif %}

@@ -1,0 +1,5 @@
+<div class="empty-state">
+  <div class="sw-empty-icon"><i class="bi bi-{{ icon|default:'inbox' }}" aria-hidden="true"></i></div>
+  <p class="text-body-secondary mb-3">{{ text }}</p>
+  {% if url %}<a class="btn btn-primary" href="{{ url }}"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>{{ action }}</a>{% endif %}
+</div>

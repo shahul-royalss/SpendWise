@@ -3,10 +3,10 @@
 {% block title %}Page not found{% endblock %}
 
 {% block content %}
-<div class="empty-state">
-  <i class="bi bi-signpost-split" aria-hidden="true"></i>
-  <h1 class="h3 mt-3">Page not found</h1>
-  <p class="text-body-secondary">The page you are looking for does not exist or is not available to your account.</p>
-  <a class="btn btn-primary" href="{% url 'tracker:dashboard' %}">Back to the dashboard</a>
+<div class="text-center py-5 sw-fade-up">
+  <p class="sw-error-code mb-2">404</p>
+  <h1 class="h3 sw-title">Page not found</h1>
+  <p class="text-body-secondary mb-4">The page you are looking for does not exist or is not available to your account.</p>
+  <a class="btn btn-primary btn-lg" href="{% url 'tracker:dashboard' %}"><i class="bi bi-house me-1" aria-hidden="true"></i>Back to the dashboard</a>
 </div>
 {% endblock %}

@@ -2,15 +2,19 @@
   {{ field }}
 {% else %}
   <div class="mb-3">
-    <label class="form-label" for="{{ field.id_for_label }}">
-      {{ field.label }}{% if field.field.required %}<span class="text-danger" aria-hidden="true"> *</span>{% endif %}
-    </label>
-    {{ field }}
+    {% if prefix %}<div class="input-group{% if field.errors %} has-validation{% endif %}"><span class="input-group-text">{{ prefix }}</span>{% endif %}
+    <div class="form-floating{% if field.errors %} is-invalid{% endif %}">
+      {{ field }}
+      <label for="{{ field.id_for_label }}">
+        {{ field.label }}{% if field.field.required %}<span class="text-danger" aria-hidden="true"> *</span>{% endif %}
+      </label>
+    </div>
+    {% if prefix %}</div>{% endif %}
     {% if field.help_text %}
       <div class="form-text" id="{{ field.auto_id }}_helptext">{{ field.help_text }}</div>
     {% endif %}
     {% for error in field.errors %}
-      <div class="invalid-feedback d-block">{{ error }}</div>
+      <div class="invalid-feedback d-block"><i class="bi bi-exclamation-circle me-1" aria-hidden="true"></i>{{ error }}</div>
     {% endfor %}
   </div>
 {% endif %}

@@ -1,62 +1,72 @@
 {% with url_name=request.resolver_match.url_name %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-  <div class="container">
-    <a class="navbar-brand fw-semibold" href="{% url 'tracker:dashboard' %}">
-      <i class="bi bi-wallet2 me-1" aria-hidden="true"></i>SpendWise
+<nav class="navbar navbar-expand-lg sticky-top sw-navbar" aria-label="Main">
+  <div class="container-xl">
+    <a class="navbar-brand sw-brand" href="{% url 'tracker:dashboard' %}">
+      <span class="sw-logo"><i class="bi bi-wallet2" aria-hidden="true"></i></span>
+      <span class="sw-brand-text">SpendWise</span>
     </a>
-    {% if user.is_authenticated %}
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
-              aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+
+    <div class="d-flex align-items-center gap-2 order-lg-last">
+      <button type="button" class="sw-icon-btn" data-theme-toggle aria-label="Toggle dark mode" aria-pressed="false">
+        <i class="bi bi-moon-stars-fill sw-when-light" aria-hidden="true"></i>
+        <i class="bi bi-sun-fill sw-when-dark" aria-hidden="true"></i>
       </button>
+      {% if user.is_authenticated %}
+        <div class="dropdown">
+          <button class="btn sw-user-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="sw-avatar" aria-hidden="true">{{ user.get_username|first|upper }}</span>
+            <span class="d-none d-sm-inline">{{ user.get_username }}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><span class="dropdown-item-text small text-body-secondary">Signed in as <strong class="text-body">{{ user.get_username }}</strong></span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">
+                  <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Log out
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+        <button class="navbar-toggler sw-icon-btn border-0" type="button" data-bs-toggle="collapse" data-bs-target="#main-nav"
+                aria-controls="main-nav" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="bi bi-list fs-5" aria-hidden="true"></i>
+        </button>
+      {% else %}
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'accounts:login' %}">Log in</a>
+        <a class="btn btn-sm btn-primary" href="{% url 'accounts:register' %}">Get started</a>
+      {% endif %}
+    </div>
+
+    {% if user.is_authenticated %}
       <div class="collapse navbar-collapse" id="main-nav">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <ul class="navbar-nav mx-lg-auto gap-lg-1 my-3 my-lg-0">
           <li class="nav-item">
             <a class="nav-link{% if url_name == 'dashboard' %} active{% endif %}"{% if url_name == 'dashboard' %} aria-current="page"{% endif %} href="{% url 'tracker:dashboard' %}">
-              <i class="bi bi-speedometer2 me-1" aria-hidden="true"></i>Dashboard
+              <i class="bi bi-grid-1x2" aria-hidden="true"></i>Dashboard
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link{% if 'expense_' in url_name %} active{% endif %}"{% if 'expense_' in url_name %} aria-current="page"{% endif %} href="{% url 'tracker:expense_list' %}">
-              <i class="bi bi-receipt me-1" aria-hidden="true"></i>Expenses
+              <i class="bi bi-receipt" aria-hidden="true"></i>Expenses
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link{% if 'budget_' in url_name %} active{% endif %}"{% if 'budget_' in url_name %} aria-current="page"{% endif %} href="{% url 'tracker:budget_list' %}">
-              <i class="bi bi-piggy-bank me-1" aria-hidden="true"></i>Budgets
+              <i class="bi bi-piggy-bank" aria-hidden="true"></i>Budgets
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link{% if 'category_' in url_name %} active{% endif %}"{% if 'category_' in url_name %} aria-current="page"{% endif %} href="{% url 'tracker:category_list' %}">
-              <i class="bi bi-tags me-1" aria-hidden="true"></i>Categories
+              <i class="bi bi-tags" aria-hidden="true"></i>Categories
             </a>
           </li>
         </ul>
-        <div class="d-flex flex-wrap align-items-center gap-2">
-          <a class="btn btn-light btn-sm fw-semibold" href="{% url 'tracker:expense_create' %}">
-            <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add expense
-          </a>
-          <div class="dropdown">
-            <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person-circle me-1" aria-hidden="true"></i>{{ user.get_username }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-              <li>
-                <form method="post" action="{% url 'accounts:logout' %}">
-                  {% csrf_token %}
-                  <button type="submit" class="dropdown-item">
-                    <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Log out
-                  </button>
-                </form>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    {% else %}
-      <div class="ms-auto d-flex gap-2">
-        <a class="btn btn-outline-light btn-sm" href="{% url 'accounts:login' %}">Log in</a>
-        <a class="btn btn-light btn-sm" href="{% url 'accounts:register' %}">Register</a>
+        <a class="btn btn-primary btn-sm d-none d-lg-inline-flex align-items-center gap-1 me-3" href="{% url 'tracker:expense_create' %}">
+          <i class="bi bi-plus-lg" aria-hidden="true"></i>Add expense
+        </a>
       </div>
     {% endif %}
   </div>

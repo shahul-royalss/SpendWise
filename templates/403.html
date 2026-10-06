@@ -3,10 +3,10 @@
 {% block title %}Access denied{% endblock %}
 
 {% block content %}
-<div class="empty-state">
-  <i class="bi bi-shield-lock" aria-hidden="true"></i>
-  <h1 class="h3 mt-3">Access denied</h1>
-  <p class="text-body-secondary">You do not have permission to open this page.</p>
-  <a class="btn btn-primary" href="{% url 'tracker:dashboard' %}">Back to the dashboard</a>
+<div class="text-center py-5 sw-fade-up">
+  <p class="sw-error-code mb-2">403</p>
+  <h1 class="h3 sw-title">Access denied</h1>
+  <p class="text-body-secondary mb-4">You do not have permission to open this page.</p>
+  <a class="btn btn-primary btn-lg" href="{% url 'tracker:dashboard' %}"><i class="bi bi-house me-1" aria-hidden="true"></i>Back to the dashboard</a>
 </div>
 {% endblock %}
